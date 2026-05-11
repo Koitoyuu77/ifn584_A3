@@ -1,0 +1,1 @@
+// Carries the outcome of a win check: whether a win occurred, which player won, and which cells form the winning line.

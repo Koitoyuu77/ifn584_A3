@@ -1,0 +1,1 @@
+// Store an enum of game mode, HvH, and HvC

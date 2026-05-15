@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using BoardGames.Core;
 namespace BoardGames.SaveLoadManager;
 
@@ -7,31 +9,31 @@ public class GameSaveState
     public string GameName { get; set; } = string.Empty; //tic tac toe, connect 4, etc.
     public string GameMode { get; set; } = string.Empty; //PVE or PVP
     public int BoardSize { get; set; } //Board size (3 for tic tac toe, 6 for connect 4, etc.)
-    public List<Move> Movelog { get; set; } = new(); //List of moves made in the game
+    public List<Move> MoveLog { get; set; } = new(); //List of moves made in the game
     public List<string> PlayerNames { get; set; } = new(); //List of player names
-    public int Cursor{ get; set; } //Current position of the cursor on the board
+    public int Cursor{ get; set; } //Current position in the move log.
     
     //Get the list of moves executed in the game.
-    public List<Move> ExcutedMoves() => Movelog.Take(Cursor).ToList();
+    public List<Move> ExecutedMoves() => MoveLog.Take(Cursor).ToList();
     //Get the list of moves that can be redone in the game.
-    public List<Move> RedoableMoves() => Movelog.Skip(Cursor).ToList();
+    public List<Move> RedoableMoves() => MoveLog.Skip(Cursor).ToList();
     public void NormalizeCursor()
     {
         //Clamp cursor between 0 and movelog count
-        Cursor = Math.Clamp(Cursor, 0, Movelog.Count);
+        Cursor = Math.Clamp(Cursor, 0, MoveLog.Count);
     }
-    // Add new move that auto handle the cursor and discard any undon moves.
+    // Add new move that auto handle the cursor and discard any undone moves.
     public void AddMove(Move move)
     {
         //Ensure cursor is within bounds
         NormalizeCursor();
-        if (Cursor < Movelog.Count)
+        if (Cursor < MoveLog.Count)
         {
-            //If cursor is not at the end of the movelog, discard any undon moves
-            Movelog.RemoveRange(Cursor, Movelog.Count - Cursor);
+            //If cursor is not at the end of the movelog, discard any undone moves
+            MoveLog.RemoveRange(Cursor, MoveLog.Count - Cursor);
         }
-        Movelog.Add(move);
-        Cursor = Movelog.Count; //Move cursor to the end of the movelog
+        MoveLog.Add(move);
+        Cursor = MoveLog.Count; //Move cursor to the end of the movelog
     }   
 
     //Undo the last move.
@@ -49,7 +51,7 @@ public class GameSaveState
     public bool Redo()
     {
         NormalizeCursor();
-        if (Cursor < Movelog.Count)
+        if (Cursor < MoveLog.Count)
         {
             Cursor++; //Move cursor forward by one
             return true;

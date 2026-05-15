@@ -1,0 +1,51 @@
+using BoardGames.Core;
+using BoardGames.Players;
+using BoardGames.WinStrategies;
+using BoardGames.PlacementStrategies;
+
+namespace BoardGames.Games;
+
+public class TicTacToeGame : Game
+{
+    public override GameType Type => GameType.TicTacToe;
+    public string MoveFormatHint => "row, col (e.g. 0, 1)";
+    
+    public TicTacToeGame() // constructor
+    {
+        this.BoardSize = 3;
+        this.Boards.Add(new Board(3, 3));
+        
+        this.WinStrategy = new LineWinStrategy(3);
+        this.Placement = new StandardPlacement();
+    }
+
+    public override IEnumerable<Piece> GetPiecesAvailable(Player player) // get player available Piece
+    {
+        string symbol = (player.Id == 0) ? "X" : "O"; // player 0 use "X", player 1 use "O"
+        return new List<Piece> {new Piece(symbol, player.Id)};
+    }
+
+    public override Move? ParseMove(String input, Player player)
+    {
+        try
+        {
+            var parts = input.Split(',');
+            if (parts.Length != 2) return null;
+
+            int visualRow = int.Parse(parts[0].Trim());
+            int col = int.Parse(parts[1].Trim());
+
+            // Convert Player visual row to internal row index
+            int internalRow = ToInternalRow(visualRow); // using Game.cs convert method
+
+            var piece = GetPiecesAvailable(player).First();
+
+            return new Move(internalRow, col, 0, piece, player.Id);
+        }
+        
+        catch
+        {
+            return null;
+        }
+    }
+}

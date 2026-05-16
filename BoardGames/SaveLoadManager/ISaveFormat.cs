@@ -1,3 +1,4 @@
+//Contract for serialising and deserialising a GameMemento to disk. Implementations are picked at runtime by file extension.
 namespace BoardGames.SaveLoadManager;
 
 //Define save and load format.

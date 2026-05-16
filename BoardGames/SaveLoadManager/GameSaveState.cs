@@ -4,6 +4,8 @@ using System.Linq;
 using BoardGames.Core;
 namespace BoardGames.SaveLoadManager;
 
+//The full saveable state of a session: game type, mode, board size, player names, the chronological move log, 
+//the cursor that splits executed from undone moves, and an extensibility dictionary for game-specific state.
 public class GameSaveState
 {
     public string GameName { get; set; } = string.Empty; //tic tac toe, connect 4, etc.

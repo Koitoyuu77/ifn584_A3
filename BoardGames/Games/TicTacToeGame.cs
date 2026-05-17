@@ -37,6 +37,8 @@ public class TicTacToeGame : Game
 
             // Convert Player visual row to internal row index
             int internalRow = ToInternalRow(visualRow); // using Game.cs convert method
+            if (col < 0 || col >= this.BoardSize || internalRow < 0 || internalRow >= this.BoardSize) // boundary check
+                return null;
 
             var piece = GetPiecesAvailable(player).First();
 

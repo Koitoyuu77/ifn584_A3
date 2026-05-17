@@ -2,6 +2,7 @@ using BoardGames.Core;
 using BoardGames.WinStrategies;
 using BoardGames.Players;
 using BoardGames.PlacementStrategies;
+using System.Security.Cryptography.X509Certificates;
 
 namespace BoardGames.Games;
 
@@ -37,6 +38,8 @@ public class GomokuGame : Game
 
             // Convert Player visual row to internal row index
             int internalRow = ToInternalRow(visualRow); // using Game.cs convert method
+            if (col < 0 || col >= this.BoardSize || internalRow < 0 || internalRow >= this.BoardSize) // boundary check
+                return null;
 
             var piece = GetPiecesAvailable(player).First();
 

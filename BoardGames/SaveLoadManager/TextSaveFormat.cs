@@ -20,5 +20,9 @@ public class TextSaveFormat : ISaveFormat
             writer.WriteLine($"{move.Row},{move.Col},{move.BoardIndex},{move.Piece},{move.PlayerId}");
         }
     }
+    public GameSaveState Load(string filePath)
+    {
+      
+    }
    
 }

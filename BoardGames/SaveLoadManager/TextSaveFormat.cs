@@ -14,5 +14,11 @@ public class TextSaveFormat : ISaveFormat
         writer.WriteLine(saveState.BoardSize); //Third line: board size
         writer.WriteLine(string.Join(",", saveState.PlayerNames)); //Fourth line: comma-separated player names
         writer.WriteLine(saveState.Cursor); //Fifth line: cursor position
+        foreach (var move in saveState.MoveLog)
+        {
+            //Subsequent lines: one move per line as comma-separated fields
+            writer.WriteLine($"{move.Row},{move.Col},{move.BoardIndex},{move.Piece},{move.PlayerId}");
+        }
     }
+   
 }

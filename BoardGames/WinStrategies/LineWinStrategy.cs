@@ -9,6 +9,9 @@ using PlacementStrategies;
 public class LineWinStrategy : IWinStrategy
 {
     private readonly int _length;
+
+    public string Description => "Line win strategy";
+
     public LineWinStrategy(int length)
     {
         _length = length;
@@ -23,15 +26,15 @@ public class LineWinStrategy : IWinStrategy
 
         foreach(var(dr,dc) in BoardDirections.AllFour)
         {
-            var winningCells = new List<(int BoardIndex, int Row, int Col)>();
-            winningCells.Add((lastMove.BoardIndex, row, col));
+            var winningCells = new List<(int, int, int)>();
+            winningCells.Add((row, col, lastMove.BoardIndex));
 
             int r=row+dr;
             int c=col+dc;
 
-            while(board.InBounds(r,c)&&!board.IsEmpty(r,c)&&board.GetCell(r, c).Piece!.OwnerId == ownerId)
+            while(board.InBounds(r,c)&&!board.GetCell(r,c).IsEmpty&&board.GetCell(r, c).Piece!.OwnerId == ownerId)
             {
-                winningCells.Add((lastMove.BoardIndex, r, c));
+                winningCells.Add((r, c, lastMove.BoardIndex));
                 r+=dr;
                 c+=dc;
             }
@@ -39,18 +42,16 @@ public class LineWinStrategy : IWinStrategy
             r=row-dr;
             c=col-dc;
 
-            while(board.InBounds(r,c)&&!board.IsEmpty(r,c)&&board.GetCell(r, c).Piece!.OwnerId == ownerId)
+            while(board.InBounds(r,c)&&!board.GetCell(r,c).IsEmpty&&board.GetCell(r, c).Piece!.OwnerId == ownerId)
             {
-                winningCells.Add((lastMove.BoardIndex, r, c));
+                winningCells.Add((r, c, lastMove.BoardIndex));
                 r-=dr;
                 c-=dc;
             }
-
 
             if(winningCells.Count >= _length)
                 return WinResult.Win(ownerId, winningCells);
         }
         return WinResult.NoWin();
     }
-
 }

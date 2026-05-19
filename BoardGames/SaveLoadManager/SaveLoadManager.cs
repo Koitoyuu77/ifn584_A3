@@ -15,24 +15,30 @@ public class SaveLoadManager
     }
     public void RegisterFormat(string extension, ISaveFormat format)
     {
-        _formats[extension] = format; //Allow external registration of new formats at runtime.
+       if (!extension.StartsWith('.')) extension = "." + extension; //Ensure extension starts with a dot.
+       _formats[extension.ToLower()] = format; //Register the format for this extension,
     }
+
+    //Save game status to a file path. The format used is determined by the file extension of the path. Throws if no format registered for the extension.
     public void Save(GameSaveState saveState, string filePath)
     {
-        string ext = Path.GetExtension(filePath).ToLower(); //Get file extension from path.
-        if (!_formats.TryGetValue(ext, out var format)) throw new Exception($"Unsupported save format: {ext}"); //Throw if no format registered for this extension.
-        format.Save(saveState, filePath); //Use the appropriate format to save the game state.
+        var format = GetFormatForPath(filePath);
+        format.Save(saveState, filePath);
     }
+
+    //Load game status from a file path. The format used is determined by the file extension of the path. Throws if no format registered for the extension.
     public GameSaveState Load(string filePath)
     {
-        string ext = Path.GetExtension(filePath).ToLower(); //Get file extension from path.
-        if (!_formats.TryGetValue(ext, out var format)) throw new Exception($"Unsupported save format: {ext}"); //Throw if no format registered for this extension.
+        var format = GetFormatForPath(filePath);
         return format.Load(filePath); //Use the appropriate format to load and return the game state.
     }
     private ISaveFormat GetFormatForPath(string filePath)
     {
-        string ext = Path.GetExtension(filePath).ToLower(); //Get file extension from path.
-        if (!_formats.TryGetValue(ext, out var format)) throw new Exception($"Unsupported save format: {ext}"); //Throw if no format registered for this extension.
-        return format; //Return the appropriate format for this extension.
+        string extension = Path.GetExtension(filePath).ToLower(); //Get the file extension in lower case for case-insensitive matching.
+        if(string.IsNullOrEmpty(extension) || !_formats.TryGetValue(extension, out var format)) //Check if a format is registered for this extension.
+        {
+            throw new InvalidOperationException($"No save format registered for file extension '{extension}'."); //Throw if no format found for the extension.
+        }
+        return format;
     }
 }

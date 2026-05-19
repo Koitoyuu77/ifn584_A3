@@ -1,6 +1,5 @@
 //Reads and writes save files as indented JSON via System.Text.Json. Stores enums as their string names for readability
 using System;
-using System;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -26,7 +25,7 @@ public class JsonSaveFormat : ISaveFormat
     {
         string json = File.ReadAllText(filePath); //Read JSON string from file.
         var state = JsonSerializer.Deserialize<GameSaveState>(json, Options); //Deserialize JSON string to GameSaveState object using configured options.
-        if (state == null) throw new Exception("Failed to deserialize saved JSON file."); //Throw
+        if (state == null) throw new InvalidDataException("Failed to deserialize saved JSON file."); //Throw
         return state;
     }
 

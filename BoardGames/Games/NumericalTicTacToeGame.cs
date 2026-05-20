@@ -14,7 +14,7 @@ public class NumericalTicTacToeGame : Game
         this.BoardSize = 3;
         this.Boards.Add(new Board(3, 3));
 
-        this.WinStrategy = new SumLineWinStrategy(15);
+        this.WinStrategy = new SumLineWinStrategy(3, 15);
         this.Placement = new StandardPlacement();
     }
 

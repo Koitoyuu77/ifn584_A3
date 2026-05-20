@@ -8,7 +8,7 @@ namespace BoardGames.Games;
 public class TicTacToeGame : Game
 {
     public override GameType Type => GameType.TicTacToe;
-    public string MoveFormatHint => "row, col (e.g. 0, 1)";
+    public override string MoveFormatHint => "row, col (e.g. 0, 1)";
     
     public TicTacToeGame() // constructor
     {

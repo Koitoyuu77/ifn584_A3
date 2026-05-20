@@ -9,7 +9,7 @@ namespace BoardGames.Games;
 public class GomokuGame : Game
 {
     public override GameType Type => GameType.Gomoku;
-    public string MoveFormatHint => "row, col (e.g. 0, 1)";
+    public override string MoveFormatHint => "row, col (e.g. 0, 1)";
     
     public GomokuGame() // constructor
     {

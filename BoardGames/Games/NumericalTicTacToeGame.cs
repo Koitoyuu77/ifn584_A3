@@ -9,6 +9,8 @@ public class NumericalTicTacToeGame : Game
 {
     public override GameType Type => GameType.NumericalTicTacToe;
 
+    public override string MoveFormatHint => "row, col, number e.g.(1, 0, 5)";
+
     public NumericalTicTacToeGame()
     {
         this.BoardSize = 3;
@@ -67,7 +69,6 @@ public class NumericalTicTacToeGame : Game
             int col = int.Parse(parts[1].Trim());
             int chosenNumber = int.Parse(parts[2].Trim());
 
-            char targetChar = chosenNumber.ToString()[0];
             Piece? matchingPiece = null;
 
             // use foreach loop to match every available pieces on player's hand 
@@ -83,7 +84,7 @@ public class NumericalTicTacToeGame : Game
             if (matchingPiece == null) return null; // if current player do not have this number or that number is used -> invalid input
 
             int internalRow = ToInternalRow(visualRow); // convert visual row to internal row index
-            if (col < 0 || col > this.BoardSize || internalRow < 0 || internalRow >= this.BoardSize) //boundary check
+            if (col < 0 || col >= this.BoardSize || internalRow < 0 || internalRow >= this.BoardSize) //boundary check
                 return null;
 
             return new Move(internalRow, col, 0, matchingPiece, player.Id);

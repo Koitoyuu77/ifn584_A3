@@ -8,6 +8,8 @@ public class NotaktoGame : Game
 {
     public override GameType Type => GameType.Notakto;
 
+    public override string MoveFormatHint => "board, row, col (e.g. 1, 0, 2)";
+
     public NotaktoGame()
     {
         this.BoardSize = 3;
@@ -15,7 +17,7 @@ public class NotaktoGame : Game
         this.Boards.Add(new Board(3, 3));
         this.Boards.Add(new Board(3, 3));
 
-        this.WinStrategy = new LineWinStrategy(3);
+        this.WinStrategy = new MisereLineWinStrategy();
         this.Placement = new StandardPlacement();
     }
 
@@ -27,6 +29,29 @@ public class NotaktoGame : Game
 
     public override Move? ParseMove(string input, Player player)
     {
-        throw new NotImplementedException(); // under development.
+        try
+        {
+            var parts = input.Split(',');
+            if (parts.Length != 3) return null;
+
+            int boardIndex = int.Parse(parts[0].Trim());
+            int visualRow = int.Parse(parts[1].Trim());
+            int col = int.Parse(parts[2].Trim());
+
+            if (boardIndex < 0 || boardIndex >= this.Boards.Count) return null; // check board index between 0, 1, 2
+            if (col < 0 || col >= this.BoardSize) return null; // boundary check column
+            
+            int internalRow = ToInternalRow(visualRow); // convert to internal index and boundary check row
+            if (internalRow < 0 || internalRow >= this.BoardSize) return null;
+
+            var piece  = GetPiecesAvailable(player).First();
+
+            return new Move(internalRow, col, boardIndex, piece, player.Id);
+        }
+
+        catch
+        {
+            return null;
+        }
     }
 }

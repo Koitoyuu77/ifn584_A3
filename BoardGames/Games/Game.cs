@@ -38,6 +38,8 @@ public abstract class Game
     // Caption show above each board for Notakto, e.g. BoardIdx, [DEAD]
     public virtual string? GetBoardCaption(int boardIndex) => null;
 
+    public abstract string MoveFormatHint { get; } // hint string
+
     // Parse input from player into a Move
     public abstract Move? ParseMove(string input, Player player);
 

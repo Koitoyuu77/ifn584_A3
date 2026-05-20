@@ -48,7 +48,7 @@ public class TextSaveFormat : ISaveFormat
             int boardIndex = int.Parse(parts[2].Trim());
             string symbol = parts[3].Trim();
             int playerId = int.Parse(parts[4].Trim());
-            var move = new Move(    
+            var move = new Move(
                 Row: row,
                 Col: col,
                 BoardIndex: boardIndex,
@@ -62,5 +62,5 @@ public class TextSaveFormat : ISaveFormat
     }
 
 
-   
+
 }

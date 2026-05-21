@@ -11,9 +11,9 @@ public class Program
         var consoleUi = new ConsoleUI();
         var inputHandler = new InputHandler();
         var controller = new GameController(consoleUi, inputHandler);
-        var saveLoadManager = new SaveLoadManager();
-        saveLoadManager.RegisterFormat(".json", new JsonSaveFormat()); //Example of registering a new format at runtime.
-        saveLoadManager.RegisterFormat(".txt", new TextSaveFormat()); //Example of registering a new format at runtime.
+        //var saveLoadManager = new SaveLoadManager();
+        //saveLoadManager.RegisterFormat(".json", new JsonSaveFormat()); //Example of registering a new format at runtime.
+        //saveLoadManager.RegisterFormat(".txt", new TextSaveFormat()); //Example of registering a new format at runtime.
         
         var factory = new GameFactory();
         
@@ -27,7 +27,7 @@ public class Program
             "3" => factory.CreateGame(Core.GameType.Notakto),
             "4" => factory.CreateGame(Core.GameType.Gomoku),
             "5" => factory.CreateGame(Core.GameType.ConnectFour),
-            _ => factory.CreateGame(Core.GameType.TicTacToe)
+            _ => throw new ArgumentException("Invalid choice")
         };
         
         controller.Run(game);

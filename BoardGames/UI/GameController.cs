@@ -7,11 +7,13 @@ public class GameController
 {
     private readonly ConsoleUI _ui;
     private readonly InputHandler _inputHandler;
+    private readonly SaveLoadManager.SaveLoadManager _saveLoadManager;
 
-    public GameController(ConsoleUI ui, InputHandler inputHandler)
+    public GameController(ConsoleUI ui, InputHandler inputHandler, SaveLoadManager.SaveLoadManager saveLoadManager)
     {
         _ui = ui;
         _inputHandler = inputHandler;
+        _saveLoadManager = saveLoadManager;
     }
 
     public void Run(Game game)

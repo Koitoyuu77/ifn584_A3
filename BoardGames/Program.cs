@@ -29,6 +29,23 @@ public class Program
             _ => factory.CreateGame(Core.GameType.TicTacToe) // Default to TicTacToe if invalid input
         };
         
+        Console.WriteLine("Select mode: 1: PvE (vs Computer), 2: PvP (vs Player)");
+        var modeChoice = Console.ReadLine();
+        var mode = modeChoice == "2" ? Core.GameMode.HumanVsHuman : Core.GameMode.HumanVsComputer;
+
+        Console.Write("Enter your name: ");
+        var p1Name = Console.ReadLine() ?? "Player 1";
+
+        string? p2Name = null;// If the mode is Human vs Human, prompt for Player 2's name. Otherwise, it will be set to "Computer" in the GameFactory.
+        if (mode == Core.GameMode.HumanVsHuman)
+        {
+            Console.Write("Enter Player 2 name: ");
+            p2Name = Console.ReadLine() ?? "Player 2";
+        }
+
+       game = factory.InitGameFactory(game.Type, mode, p1Name, p2Name);// Initialize the game with the selected type, mode, and player names.
+    
         controller.Run(game);
+        
     }
 }

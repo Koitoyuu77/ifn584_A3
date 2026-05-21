@@ -14,7 +14,7 @@ public class TextSaveFormat : ISaveFormat
     public void Save(GameSaveState saveState, string filePath)
     {
         using var writer = new StreamWriter(filePath);
-        writer.WriteLine(saveState.GameName); //First line: game name
+        writer.WriteLine(saveState.GameType); //First line: game type
         writer.WriteLine(saveState.GameMode); //Second line: game mode
         writer.WriteLine(saveState.BoardSize); //Third line: board size
         writer.WriteLine(string.Join(",", saveState.PlayerNames)); //Fourth line: comma-separated player names
@@ -31,7 +31,7 @@ public class TextSaveFormat : ISaveFormat
       if (lines.Length < 5) throw new InvalidDataException("Invalid save file format: not enough lines."); //Validate minimum number of lines for header.
         var saveState = new GameSaveState
         {
-            GameName = lines[0].Trim(), //First line: game name
+            GameType = lines[0].Trim(), //First line: game type
             GameMode = lines[1].Trim(), //Second line: game mode
             BoardSize = int.Parse(lines[2].Trim()), //Third line: board size
             PlayerNames = lines[3].Split(',').Where(name => !string.IsNullOrWhiteSpace(name)).Select(name => name.Trim()).ToList(), //Fourth line: comma-separated player names

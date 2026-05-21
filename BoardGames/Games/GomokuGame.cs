@@ -36,8 +36,8 @@ public class GomokuGame : Game
             int visualRow = int.Parse(parts[0].Trim());
             int col = int.Parse(parts[1].Trim());
 
-            // Convert Player visual row to internal row index
-            int internalRow = ToInternalRow(visualRow); // using Game.cs convert method
+            // Original: Convert Player visual row to internal row index -> Current: Align directly with the UI's coordinate system without convert. 
+            int internalRow = visualRow;
             if (col < 0 || col >= this.BoardSize || internalRow < 0 || internalRow >= this.BoardSize) // boundary check
                 return null;
 

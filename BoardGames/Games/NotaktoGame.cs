@@ -41,8 +41,9 @@ public class NotaktoGame : Game
             if (boardIndex < 0 || boardIndex >= this.Boards.Count) return null; // check board index between 0, 1, 2
             if (col < 0 || col >= this.BoardSize) return null; // boundary check column
             
-            int internalRow = ToInternalRow(visualRow); // convert to internal index and boundary check row
-            if (internalRow < 0 || internalRow >= this.BoardSize) return null;
+            // Original: Convert Player visual row to internal row index -> Current: Align directly with the UI's coordinate system without convert. 
+            int internalRow = visualRow;
+            if (internalRow < 0 || internalRow >= this.BoardSize) return null; // boundary check
 
             var piece  = GetPiecesAvailable(player).First();
 

@@ -82,8 +82,9 @@ public class NumericalTicTacToeGame : Game
             }
 
             if (matchingPiece == null) return null; // if current player do not have this number or that number is used -> invalid input
-
-            int internalRow = ToInternalRow(visualRow); // convert visual row to internal row index
+            
+            // Original: Convert Player visual row to internal row index -> Current: Align directly with the UI's coordinate system without convert. 
+            int internalRow = visualRow;
             if (col < 0 || col >= this.BoardSize || internalRow < 0 || internalRow >= this.BoardSize) //boundary check
                 return null;
 

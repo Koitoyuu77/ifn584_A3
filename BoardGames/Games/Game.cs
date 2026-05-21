@@ -85,7 +85,28 @@ public abstract class Game
 
     public virtual bool PlayTurn(Move move)
     {
-        // await MoveHistory
+        var result = Placement.Place(Boards, move);
+        if (!result.Success) return false;
+
+        var resolvedMove = move with { Row = result.Row };
+
+        var winResult = WinStrategy.CheckWin(Boards, resolvedMove);
+        if (winResult.IsWon)
+        {
+            IsOver = true;
+            Winner = CurrentPlayer;
+            WinningCells = winResult.WinningCells;
+            return true; 
+        }
+
+        if (Boards.All(b => b.IsFull()))
+        {
+            IsOver = true;
+            IsDraw = true;
+            return true;
+        }
+
+        CurrentPlayerIdx = (CurrentPlayerIdx + 1) % Players.Count;
         return true;
     }
 

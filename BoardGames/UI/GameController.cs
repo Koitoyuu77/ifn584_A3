@@ -1,3 +1,4 @@
+using BoardGames.Core;
 using BoardGames.Games;
 // using BoardGames.SaveLoadManager;
 
@@ -23,11 +24,39 @@ public class GameController
         while (!game.IsOver)
         {
             _ui.Render(game, status);
+            
+            // Check current round is Computer or not
+            if (game.CurrentPlayer.Name == "Computer")
+            {
+                Console.WriteLine("Computer is thinking...");
+                System.Threading.Thread.Sleep(800);
 
-            string input = _ui.ReadInput();
-            Command command = _inputHandler.Parse(input, game);
+                try
+                {
+                    // new Simple AI strategy
+                    var aiStrategy = new BoardGames.PlacementStrategies.SimpleAI();
 
-            status = HandleCommand(command, game);
+                    // Call the AI's ChooseMove, input the current game state and the computer player's information, and let it calculate the best move.
+                    Move aiMove = aiStrategy.ChooseMove(game, game.CurrentPlayer); 
+                    
+                    // Let computer make a move
+                    bool success = game.PlayTurn(aiMove);
+                    status = success ? "Computer made a move" : "Computer failed to move";
+                }
+
+                catch(Exception ex)
+                {
+                    status = $"Computer AI Error: {ex.Message}";
+                }
+            }
+
+            else{
+                // Human round: stop and wait for the command.
+                string input = _ui.ReadInput();
+                Command command = _inputHandler.Parse(input, game);
+
+                status = HandleCommand(command, game);
+            }
         }
 
         _ui.Render(game, "Game over.");

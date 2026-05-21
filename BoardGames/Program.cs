@@ -1,28 +1,35 @@
-﻿using System;
+﻿using BoardGames.Factories;
+using BoardGames.UI;
 using BoardGames.SaveLoadManager;
-class Program
+
+namespace BoardGames;
+
+public class Program
 {
-    static void Main()
+    public static void Main()
     {
-        // Create saveLoadManager instance to manage game saves and loads.
-        //saveLoadManager.RegisterFormat(".json", new JsonSaveFormat()); //Example of registering a new format at runtime.
-        //saveLoadManager.RegisterFormat(".txt", new TextSaveFormat()); //Example of registering a new format at runtime.
-        var saveLoadManager = new SaveLoadManager(); //Create an instance of the SaveLoadManager.
-        var consoleUI = new ConsoleUI(); //Create an instance of the ConsoleUI, passing in the saveLoadManager for save/load functionality.
-        var inputHandler = new InputHandler(); //Create an instance of the InputHandler, passing in the consoleUI to handle user input.
-        var gameController = new GameController(); //Create an instance of the GameController.
+        var consoleUi = new ConsoleUI();
+        var inputHandler = new InputHandler();
+        var controller = new GameController(consoleUi, inputHandler);
+        var saveLoadManager = new SaveLoadManager();
+        saveLoadManager.RegisterFormat(".json", new JsonSaveFormat()); //Example of registering a new format at runtime.
+        saveLoadManager.RegisterFormat(".txt", new TextSaveFormat()); //Example of registering a new format at runtime.
         
-    }
-    public class ConsoleUI
-    {
-       
-    }
-    public class InputHandler
-    {
-       
-    }
-    public class GameController
-    {
-       
+        var factory = new GameFactory();
+        
+        Console.WriteLine("Select a Game: 1: TicTacToe, 2: NumericalTicTacToe, 3: Notakto, 4: Gomoku, 5: ConnectFour");
+        var choice = Console.ReadLine();
+        
+        var game = choice switch
+        {
+            "1" => factory.CreateGame(Core.GameType.TicTacToe),
+            "2" => factory.CreateGame(Core.GameType.NumericalTicTacToe),
+            "3" => factory.CreateGame(Core.GameType.Notakto),
+            "4" => factory.CreateGame(Core.GameType.Gomoku),
+            "5" => factory.CreateGame(Core.GameType.ConnectFour),
+            _ => factory.CreateGame(Core.GameType.TicTacToe)
+        };
+        
+        controller.Run(game);
     }
 }

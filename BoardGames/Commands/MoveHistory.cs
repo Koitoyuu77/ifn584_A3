@@ -36,17 +36,18 @@ public class MoveHistory
 
     public IMoveCommand? Redo()
     {
-        // If the Redo Stack is empty, return null
+        // If the redo stack is empty, there is nothing to redo.
         if (!CanRedo) return null;
 
-        // Pop the last command from the Redo Stack
+        // Take the most recently undone command.
         var cmd = _redoStack.Pop();
 
-        // Run its Execute Logic to reapply the move
-        cmd.Undo();
+        // Reapply the command.
+        cmd.Execute();
 
-        // Push it back onto the Undo Stack
+        // Once reapplied, it becomes undoable again.
         _undoStack.Push(cmd);
+
         return cmd;
     }
 

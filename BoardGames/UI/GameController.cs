@@ -1,7 +1,7 @@
 using BoardGames.Core;
 using BoardGames.Games;
 using BoardGames.Players;
-// using BoardGames.SaveLoadManager;
+using BoardGames.SaveLoadManager;
 
 namespace BoardGames.UI;
 
@@ -35,29 +35,28 @@ public class GameController
             if (game.CurrentPlayer.IsComputer)
             {
                 Console.WriteLine("Computer is thinking...");
-                System.Threading.Thread.Sleep(800);
+                Thread.Sleep(800);
 
                 try
                 {
                     // CurrentPlayer -> ComputerPlayer and call built-in ChooseMove(game)
-                    if (game.CurrentPlayer is ComputerPlayer computerPlayer)
+                    if (game.CurrentPlayer is not ComputerPlayer computerPlayer)
                     {
-                        Move aiMove = computerPlayer.ChooseMove(game);
-                        bool success = game.PlayTurn(aiMove);
-                        status = success ? "Computer made a move" : "Computer failed ot move";
+                        status = "Current player is marked as computer but is not a ComputerPlayer.";
+                        continue;
                     }
 
-                    else
-                    {
-                        status = "Error";
-                    }
+                    Move aiMove = computerPlayer.ChooseMove(game);
+                    bool success = game.PlayTurn(aiMove);
 
+                    status = success ? "Computer made a move." : "Computer failed to move.";
                 }
-
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     status = $"Computer AI Error: {ex.Message}";
                 }
+
+                continue;
             }
 
             else{
@@ -121,6 +120,34 @@ public class GameController
             : "Invalid move. Please try again.";
     }
 
+    private GameSaveState CreateSaveState(Game game)
+    {
+        // This method converts the current Game object into a saveable data object.
+        // The save file does not store the Board object directly.
+        // Instead, it stores the game type, mode, player names, and move history.
+
+        var state = new GameSaveState
+        {
+            GameType = game.Type.ToString(),
+            GameMode = game.Mode.ToString(),
+            BoardSize = game.BoardSize,
+            PlayerNames = game.Players.Select(player => player.Name).ToList(),
+
+            // Cursor means how many moves are currently active.
+            // Example:
+            // If 5 moves were made and none were undone, Cursor = 5.
+            // If 5 moves were made and 2 were undone, Cursor = 3.
+            Cursor = game.History.ExecutedCount,
+
+            // Save all commands in the timeline as moves.
+            // This includes executed moves and redoable moves.
+            MoveLog = game.History.AllCommands
+                .Select(command => command.Move)
+                .ToList()
+        };
+
+        return state;
+    }
     private string HandleSave(Command command, Game game)
     {
         if (string.IsNullOrWhiteSpace(command.Argument))
@@ -128,11 +155,16 @@ public class GameController
             return "Missing file name.";
         }
 
-        // TODO: connect this to Member 3 / SaveLoadManager implementation.
-        // Example later:
         try
         {
-            //_saveLoadManager.Save(_currentSaveState, command.Argument);
+            // Convert the current game into a saveable state.
+            GameSaveState saveState = CreateSaveState(game);
+
+            // Save using the correct format based on the file extension:
+            // .json -> JsonSaveFormat
+            // .txt  -> TextSaveFormat
+            _saveLoadManager.Save(saveState, command.Argument);
+
             return $"Game saved to {command.Argument}.";
         }
         catch (Exception ex)

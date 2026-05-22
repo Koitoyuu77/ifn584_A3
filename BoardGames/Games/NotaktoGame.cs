@@ -4,89 +4,135 @@ using BoardGames.WinStrategies;
 using BoardGames.PlacementStrategies;
 
 namespace BoardGames.Games;
+
 public class NotaktoGame : Game
 {
     public override GameType Type => GameType.Notakto;
 
-    public override string MoveFormatHint => "board, row, col (e.g. 1, 0, 2)";
+    public override string MoveFormatHint => "board row col or board, row, col (e.g. 1 0 2 or 1, 0, 2)";
 
+    // Notakto is a misère game:
+    // the player who causes the final losing condition loses.
     public override bool IsMisere => true;
 
     public NotaktoGame()
     {
-        this.BoardSize = 3;
-        this.Boards.Add(new Board(3, 3)); // three independent boards
-        this.Boards.Add(new Board(3, 3));
-        this.Boards.Add(new Board(3, 3));
+        BoardSize = 3;
 
-        this.WinStrategy = new MisereLineWinStrategy();
-        this.Placement = new StandardPlacement();
+        // Notakto uses three separate 3x3 boards.
+        Boards.Add(new Board(3, 3));
+        Boards.Add(new Board(3, 3));
+        Boards.Add(new Board(3, 3));
+
+        WinStrategy = new MisereLineWinStrategy();
+        Placement = new StandardPlacement();
     }
-
 
     public override IEnumerable<Piece> GetPiecesAvailable(Player player)
     {
-        return new List<Piece> {new Piece ("X", player.Id)}; // every player only can take "X" Piece.
+        // In Notakto, both players place the same piece: X.
+        return new List<Piece>
+        {
+            new Piece("X", player.Id)
+        };
     }
 
     public override Move? ParseMove(string input, Player player)
     {
-        try
-        {
-            var parts = input.Split(',');
-            if (parts.Length != 3) return null;
-
-            int boardIndex = int.Parse(parts[0].Trim());
-            int visualRow = int.Parse(parts[1].Trim());
-            int col = int.Parse(parts[2].Trim());
-
-            if (boardIndex < 0 || boardIndex >= this.Boards.Count) return null; // check board index between 0, 1, 2
-            if (col < 0 || col >= this.BoardSize) return null; // boundary check column
-            
-            // Original: Convert Player visual row to internal row index -> Current: Align directly with the UI's coordinate system without convert. 
-            int internalRow = visualRow;
-            if (internalRow < 0 || internalRow >= this.BoardSize) return null; // boundary check
-
-            var piece  = GetPiecesAvailable(player).First();
-
-            return new Move(internalRow, col, boardIndex, piece, player.Id);
-        }
-
-        catch
+        if (string.IsNullOrWhiteSpace(input))
         {
             return null;
         }
+
+        // Support both formats:
+        // "1, 0, 2"
+        // "1 0 2"
+        string[] parts = input.Contains(',')
+            ? input.Split(',', StringSplitOptions.RemoveEmptyEntries)
+            : input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+        if (parts.Length != 3)
+        {
+            return null;
+        }
+
+        if (!int.TryParse(parts[0].Trim(), out int boardIndex))
+        {
+            return null;
+        }
+
+        if (!int.TryParse(parts[1].Trim(), out int row))
+        {
+            return null;
+        }
+
+        if (!int.TryParse(parts[2].Trim(), out int col))
+        {
+            return null;
+        }
+
+        if (boardIndex < 0 || boardIndex >= Boards.Count)
+        {
+            return null;
+        }
+
+        if (row < 0 || row >= BoardSize)
+        {
+            return null;
+        }
+
+        if (col < 0 || col >= BoardSize)
+        {
+            return null;
+        }
+
+        Piece piece = GetPiecesAvailable(player).First();
+
+        return new Move(row, col, boardIndex, piece, player.Id);
     }
 
-    public override bool IsValidMove(Move move) // Check if the current move is an attempt to place a piece that is already dead.
+    public override bool IsValidMove(Move move)
     {
-        if (!base.IsValidMove(move)) return false; // Call Parent Class for a basic check (check out of bounds or grid is empty).
-
-        var targetBoard = Boards[move.BoardIndex]; // Identify the specific board that the player is attempting to place.
-
-        if (isBoardDead(targetBoard)) // If the board is dead, then the move is invalid.
+        // First, use the base validation:
+        // - board index must be valid
+        // - row and column must be inside the board
+        // - target cell must be empty
+        if (!base.IsValidMove(move))
         {
             return false;
         }
 
-        return true;
+        // Notakto-specific rule:
+        // once a board already has a line of three Xs, that board is dead.
+        // A player cannot place another X on a dead board.
+        return !IsBoardDead(Boards[move.BoardIndex]);
     }
 
-    private bool isBoardDead(Board board) // The method to check board status
+    public override string? GetBoardCaption(int boardIndex)
     {
-        // check 3 rows 
-        for(int r = 0; r < 3; r++)
-        if (!board.GetCell(r, 0).IsEmpty && !board.GetCell(r, 1).IsEmpty && !board.GetCell(r, 2).IsEmpty)
-                return true;
-        // check 3 cols
-        for (int c = 0; c < 3; c++)
-            if (!board.GetCell(0, c).IsEmpty && !board.GetCell(1, c).IsEmpty && !board.GetCell(2, c).IsEmpty)
-                return true;
-        //check 2 diagonal lines
-        if (!board.GetCell(0, 0).IsEmpty && !board.GetCell(1, 1).IsEmpty && !board.GetCell(2, 2).IsEmpty) // top left to down right (\)
-            return true;
-        if (!board.GetCell(0, 2).IsEmpty && !board.GetCell(1, 1).IsEmpty && !board.GetCell(2, 0).IsEmpty) // top right to down left (/)
-            return true;
+        if (boardIndex < 0 || boardIndex >= Boards.Count)
+        {
+            return null;
+        }
+
+        string caption = $"Board {boardIndex}";
+
+        if (IsBoardDead(Boards[boardIndex]))
+        {
+            caption += " [DEAD]";
+        }
+
+        return caption;
+    }
+
+    private bool IsBoardDead(Board board)
+    {
+        // Reuse the win strategy logic instead of duplicating row/column/diagonal checks.
+        // MisereLineWinStrategy.HasLine(board) returns true if the board contains any 3-in-a-row.
+        if (WinStrategy is MisereLineWinStrategy misere)
+        {
+            return misere.HasLine(board);
+        }
 
         return false;
     }

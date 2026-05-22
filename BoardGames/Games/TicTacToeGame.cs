@@ -25,29 +25,39 @@ public class TicTacToeGame : Game
         return new List<Piece> {new Piece(symbol, player.Id)};
     }
 
-    public override Move? ParseMove(String input, Player player)
+    public override Move? ParseMove(string input, Player player)
     {
-        try
-        {
-            var parts = input.Split(',');
-            if (parts.Length != 2) return null;
-
-            int visualRow = int.Parse(parts[0].Trim());
-            int col = int.Parse(parts[1].Trim());
-
-            // Original: Convert Player visual row to internal row index -> Current: Align directly with the UI's coordinate system without convert. 
-            int internalRow = visualRow; 
-            if (col < 0 || col >= this.BoardSize || internalRow < 0 || internalRow >= this.BoardSize) // boundary check
-                return null;
-
-            var piece = GetPiecesAvailable(player).First();
-
-            return new Move(internalRow, col, 0, piece, player.Id);
-        }
-        
-        catch
+        if (string.IsNullOrWhiteSpace(input))
         {
             return null;
         }
+
+        string[] parts = input.Contains(',')
+            ? input.Split(',', StringSplitOptions.RemoveEmptyEntries)
+            : input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+        if (parts.Length != 2)
+        {
+            return null;
+        }
+
+        if (!int.TryParse(parts[0].Trim(), out int row))
+        {
+            return null;
+        }
+
+        if (!int.TryParse(parts[1].Trim(), out int col))
+        {
+            return null;
+        }
+
+        if (row < 0 || row >= BoardSize || col < 0 || col >= BoardSize)
+        {
+            return null;
+        }
+
+        Piece piece = GetPiecesAvailable(player).First();
+
+        return new Move(row, col, 0, piece, player.Id);
     }
 }

@@ -49,18 +49,38 @@ public class InputHandler
 
     private Command ParseMoveCommand(string raw, string[] parts, Game game)
     {
-        string moveText = string.Join(' ', parts.Skip(1));
-
-        if (string.IsNullOrWhiteSpace(moveText))
+        if (parts.Length < 2)
         {
-            return new Command(CommandType.Unknown, raw, "Missing move input.");
+            return new Command(
+                CommandType.Unknown,
+                raw,
+                $"Missing move input. Expected: {game.MoveFormatHint}"
+            );
+        }
+
+        string moveText;
+
+        // Support both:
+        // move 0 1
+        // move 0, 1
+        if (raw.Contains(','))
+        {
+            moveText = raw.Substring(raw.IndexOf(' ') + 1).Trim();
+        }
+        else
+        {
+            moveText = string.Join(", ", parts.Skip(1));
         }
 
         Move? move = game.ParseMove(moveText, game.CurrentPlayer);
 
         if (move is null)
         {
-            return new Command(CommandType.Unknown, raw, "Invalid move format.");
+            return new Command(
+                CommandType.Unknown,
+                raw,
+                $"Invalid move format. Expected: {game.MoveFormatHint}"
+            );
         }
 
         return new Command(CommandType.Move, raw, move: move);

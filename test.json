@@ -1,0 +1,42 @@
+{
+  "gameType": "TicTacToe",
+  "gameMode": "HumanVsHuman",
+  "boardSize": 3,
+  "moveLog": [
+    {
+      "row": 0,
+      "col": 0,
+      "boardIndex": 0,
+      "piece": {
+        "symbol": "X",
+        "ownerId": 0
+      },
+      "playerId": 0
+    },
+    {
+      "row": 0,
+      "col": 1,
+      "boardIndex": 0,
+      "piece": {
+        "symbol": "O",
+        "ownerId": 1
+      },
+      "playerId": 1
+    },
+    {
+      "row": 0,
+      "col": 2,
+      "boardIndex": 0,
+      "piece": {
+        "symbol": "X",
+        "ownerId": 0
+      },
+      "playerId": 0
+    }
+  ],
+  "playerNames": [
+    "Sen",
+    "Zac"
+  ],
+  "cursor": 3
+}

@@ -12,7 +12,13 @@ public class SimpleAI : IAIStrategy
     {
         var validMoves = game.GetValidMoves(player).ToList();
 
-        // check if any move can win immediately
+        // Safety check: avoid random selection from an empty list.
+        if (validMoves.Count == 0)
+        {
+            throw new InvalidOperationException("No valid moves available.");
+        }
+
+        // Requirement: choose an immediate winning move if available.
         foreach (var move in validMoves)
         {
             if (game.IsWinningMove(move))
@@ -21,7 +27,7 @@ public class SimpleAI : IAIStrategy
             }
         }
 
-        // if not, choose a random valid move
+        // Otherwise, choose a random valid move.
         return validMoves[_random.Next(validMoves.Count)];
     }
 }

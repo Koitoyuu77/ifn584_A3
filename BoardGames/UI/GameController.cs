@@ -1,5 +1,6 @@
 using BoardGames.Core;
 using BoardGames.Games;
+using BoardGames.Players;
 // using BoardGames.SaveLoadManager;
 
 namespace BoardGames.UI;
@@ -26,22 +27,26 @@ public class GameController
             _ui.Render(game, status);
             
             // Check current round is Computer or not
-            if (game.CurrentPlayer.Name == "Computer")
+            if (game.CurrentPlayer.IsComputer)
             {
                 Console.WriteLine("Computer is thinking...");
                 System.Threading.Thread.Sleep(800);
 
                 try
                 {
-                    // new Simple AI strategy
-                    var aiStrategy = new BoardGames.PlacementStrategies.SimpleAI();
+                    // CurrentPlayer -> ComputerPlayer and call built-in ChooseMove(game)
+                    if (game.CurrentPlayer is ComputerPlayer computerPlayer)
+                    {
+                        Move aiMove = computerPlayer.ChooseMove(game);
+                        bool success = game.PlayTurn(aiMove);
+                        status = success ? "Computer made a move" : "Computer failed ot move";
+                    }
 
-                    // Call the AI's ChooseMove, input the current game state and the computer player's information, and let it calculate the best move.
-                    Move aiMove = aiStrategy.ChooseMove(game, game.CurrentPlayer); 
-                    
-                    // Let computer make a move
-                    bool success = game.PlayTurn(aiMove);
-                    status = success ? "Computer made a move" : "Computer failed to move";
+                    else
+                    {
+                        status = "Error";
+                    }
+
                 }
 
                 catch(Exception ex)

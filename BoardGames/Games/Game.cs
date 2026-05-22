@@ -83,8 +83,12 @@ public abstract class Game
         return winResult.IsWon && winResult.WinnerPlayerId == move.PlayerId;
     }
 
+
+    public virtual bool IsMisere => false;
     public virtual bool PlayTurn(Move move)
     {
+        if (!IsValidMove(move)) return false; // Regardless of who's turn, the first step is to check IsValidMove.
+        
         var result = Placement.Place(Boards, move);
         if (!result.Success) return false;
 
@@ -94,8 +98,18 @@ public abstract class Game
         if (winResult.IsWon)
         {
             IsOver = true;
-            Winner = CurrentPlayer;
             WinningCells = winResult.WinningCells;
+            
+            if (IsMisere) // Notakto
+            {
+                int nextPlayerIdx = (CurrentPlayerIdx + 1) % Players.Count;
+                Winner = Players[nextPlayerIdx]; //winner is next player
+            }
+
+            else
+            {
+                Winner = CurrentPlayer; // Standard game who wins the game when connect a line.
+            }
             return true; 
         }
 

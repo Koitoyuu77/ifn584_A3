@@ -10,6 +10,8 @@ public class NotaktoGame : Game
 
     public override string MoveFormatHint => "board, row, col (e.g. 1, 0, 2)";
 
+    public override bool IsMisere => true;
+
     public NotaktoGame()
     {
         this.BoardSize = 3;
@@ -54,5 +56,38 @@ public class NotaktoGame : Game
         {
             return null;
         }
+    }
+
+    public override bool IsValidMove(Move move) // Check if the current move is an attempt to place a piece that is already dead.
+    {
+        if (!base.IsValidMove(move)) return false; // Call Parent Class for a basic check (check out of bounds or grid is empty).
+
+        var targetBoard = Boards[move.BoardIndex]; // Identify the specific board that the player is attempting to place.
+
+        if (isBoardDead(targetBoard)) // If the board is dead, then the move is invalid.
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    private bool isBoardDead(Board board) // The method to check board status
+    {
+        // check 3 rows 
+        for(int r = 0; r < 3; r++)
+        if (!board.GetCell(r, 0).IsEmpty && !board.GetCell(r, 1).IsEmpty && !board.GetCell(r, 2).IsEmpty)
+                return true;
+        // check 3 cols
+        for (int c = 0; c < 3; c++)
+            if (!board.GetCell(0, c).IsEmpty && !board.GetCell(1, c).IsEmpty && !board.GetCell(2, c).IsEmpty)
+                return true;
+        //check 2 diagonal lines
+        if (!board.GetCell(0, 0).IsEmpty && !board.GetCell(1, 1).IsEmpty && !board.GetCell(2, 2).IsEmpty) // top left to down right (\)
+            return true;
+        if (!board.GetCell(0, 2).IsEmpty && !board.GetCell(1, 1).IsEmpty && !board.GetCell(2, 0).IsEmpty) // top right to down left (/)
+            return true;
+
+        return false;
     }
 }

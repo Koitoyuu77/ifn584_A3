@@ -11,6 +11,11 @@ public class GameController
     private readonly InputHandler _inputHandler;
     private readonly SaveLoadManager.SaveLoadManager _saveLoadManager;
 
+    // Tracks the move history for the current session so it can be saved and restarted.
+    //private GameSaveState _currentSaveState = new();
+
+    //Set by HandleLoad to singal Run() to swap to a newly reconstructed game.
+    //private Game? _pendingLoadGame = null;
     public GameController(ConsoleUI ui, InputHandler inputHandler, SaveLoadManager.SaveLoadManager saveLoadManager)
     {
         _ui = ui;
@@ -125,8 +130,14 @@ public class GameController
 
         // TODO: connect this to Member 3 / SaveLoadManager implementation.
         // Example later:
-        // _saveLoadManager.Save(game, command.Argument);
-
-        return $"Save requested: {command.Argument}";
+        try
+        {
+            //_saveLoadManager.Save(_currentSaveState, command.Argument);
+            return $"Game saved to {command.Argument}.";
+        }
+        catch (Exception ex)
+        {
+            return $"Save failed, try again: {ex.Message}";
+        }
     }
 }

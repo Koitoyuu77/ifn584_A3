@@ -15,6 +15,18 @@ public class Program
         var inputHandler = new InputHandler();
         var controller = new GameController(consoleUi, inputHandler, saveLoadManager);
         var factory = new GameFactory();
+
+        Console.WriteLine("Welcome to Board Games! Choose An Action!");
+        Console.WriteLine("1: Start New Game");
+        Console.WriteLine("2: Load Game");
+
+        var actionChoice = Console.ReadLine();
+        if (actionChoice == "2")
+        {
+            Console.WriteLine("Enter the file path to load: ");
+            var filePath = Console.ReadLine();
+            
+        }
         
         Console.WriteLine("Select a Game: 1: TicTacToe, 2: NumericalTicTacToe, 3: Notakto, 4: Gomoku, 5: ConnectFour");
         var choice = Console.ReadLine();

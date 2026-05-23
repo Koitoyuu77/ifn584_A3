@@ -29,9 +29,9 @@ public class NumericalTicTacToeGame : Game
         List<int> usedNumberList = new List<int>(); //used number list
         var board = this.Boards[0];
 
-        for (int r = 0; r < 3; r++)
+        for (int r = 0; r < board.Rows; r++)
         {
-            for (int c = 0; c < 3; c++)
+            for (int c = 0; c < board.Cols; c++)
             {
                 // read current cell state
                 var cell = board.GetCell(r, c); 
@@ -62,7 +62,7 @@ public class NumericalTicTacToeGame : Game
     {
         try
         {
-            var parts = input.Split(','); // use "," to split string
+            var parts = input.Split(new char[]{',', ' '}, StringSplitOptions.RemoveEmptyEntries);
             if (parts.Length != 3) return null;
 
             int visualRow = int.Parse(parts[0].Trim()); // row, col, piece number

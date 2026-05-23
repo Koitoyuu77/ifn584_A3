@@ -2,7 +2,6 @@ using BoardGames.Core;
 using BoardGames.WinStrategies;
 using BoardGames.Players;
 using BoardGames.PlacementStrategies;
-using System.Security.Cryptography.X509Certificates;
 
 namespace BoardGames.Games;
 
@@ -22,15 +21,15 @@ public class GomokuGame : Game
 
     public override IEnumerable<Piece> GetPiecesAvailable(Player player) // get player available Piece
     {
-        String symbol = (player.Id == 0) ? "X" : "O"; // player 0 use "X", player 1 use "O"
+        string symbol = (player.Id == 0) ? "X" : "O"; // player 0 use "X", player 1 use "O"
         return new List<Piece> {new Piece(symbol, player.Id)};
     }
 
-    public override Move? ParseMove(String input, Player player)
+    public override Move? ParseMove(string input, Player player)
     {
         try
         {
-            var parts = input.Split(',');
+            var parts = input.Split(new char[] {',', ' '}, StringSplitOptions.RemoveEmptyEntries);
             if (parts.Length != 2) return null;
 
             int visualRow = int.Parse(parts[0].Trim());

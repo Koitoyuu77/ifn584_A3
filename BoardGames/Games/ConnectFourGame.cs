@@ -38,7 +38,7 @@ public class ConnectFourGame : Game
             return null;
         }
 
-        if (col < 0 || col >= 7)
+        if (col < 0 || col >= Boards[0].Cols)
         {
             return null;
         }

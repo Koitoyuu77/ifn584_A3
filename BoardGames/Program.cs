@@ -27,33 +27,87 @@ public class Program
         // GameFactory creates the correct concrete game object.
         var factory = new GameFactory();
 
-        // ============================================================
-        // 2. Startup menu: New Game or Load Game
-        // ============================================================
-        Console.WriteLine("=======================================");
-        Console.WriteLine(" IFN584 Board Games Framework");
-        Console.WriteLine("=======================================");
-        Console.WriteLine("1. New Game");
-        Console.WriteLine("2. Load Game");
-        Console.Write("Select option: ");
-
-        string? startChoice = Console.ReadLine();
-
-        Game game;
-
-        if (startChoice == "2")
+        while (true)
         {
-            game = LoadGameFromFile(saveLoadManager, factory);
-        }
-        else
-        {
-            game = CreateNewGame(factory);
-        }
+            // ============================================================
+            // 2. Startup menu: New Game or Load Game
+            // ============================================================
+            Game game = AskStartupAction(saveLoadManager, factory);
 
-        // ============================================================
-        // 3. Start the game loop
-        // ============================================================
-        controller.Run(game);
+            // ============================================================
+            // 3. Start the game loop
+            // ============================================================
+            controller.Run(game);
+
+            if (!AskReturnToMainMenu())
+            {
+                break;
+            }
+        }
+    }
+
+    private static Game AskStartupAction(SaveLoadManager.SaveLoadManager saveLoadManager, GameFactory factory)
+    {
+        while (true)
+        {
+            try
+            {
+                Console.WriteLine("=======================================");
+                Console.WriteLine(" IFN584 Board Games Framework");
+                Console.WriteLine("=======================================");
+                Console.WriteLine("1. New Game");
+                Console.WriteLine("2. Load Game");
+                Console.Write("Select option: ");
+
+                string choice = ReadRequiredInput();
+
+                switch (choice)
+                {
+                    case "1":
+                        return CreateNewGame(factory);
+                    case "2":
+                        return LoadGameFromFile(saveLoadManager, factory);
+                    default:
+                        throw new ArgumentException("Invalid option. Please enter 1 for New Game or 2 for Load Game.");
+                }
+            }
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine(ex.Message);
+                Console.WriteLine();
+            }
+        }
+    }
+
+    private static bool AskReturnToMainMenu()
+    {
+        while (true)
+        {
+            try
+            {
+                Console.WriteLine();
+                Console.WriteLine("What would you like to do next?");
+                Console.WriteLine("1. Return to Main Menu");
+                Console.WriteLine("2. Exit");
+                Console.Write("Select option: ");
+
+                string choice = ReadRequiredInput();
+
+                switch (choice)
+                {
+                    case "1":
+                        return true;
+                    case "2":
+                        return false;
+                    default:
+                        throw new ArgumentException("Invalid option. Please enter 1 to return to the main menu or 2 to exit.");
+                }
+            }
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
     }
 
     private static Game CreateNewGame(GameFactory factory)
@@ -188,24 +242,31 @@ public class Program
             Console.WriteLine("5. Connect Four");
             Console.Write("Choice: ");
 
-            string? choice = Console.ReadLine();
-
-            return choice switch
+            try
             {
-                "1" => GameType.TicTacToe,
-                "2" => GameType.NumericalTicTacToe,
-                "3" => GameType.Notakto,
-                "4" => GameType.Gomoku,
-                "5" => GameType.ConnectFour,
-                _ => AskAgainGameType()
-            };
-        }
-    }
+                string choice = ReadRequiredInput();
 
-    private static GameType AskAgainGameType()
-    {
-        Console.WriteLine("Invalid game selection. Defaulting to Tic-Tac-Toe.");
-        return GameType.TicTacToe;
+                switch (choice)
+                {
+                    case "1":
+                        return GameType.TicTacToe;
+                    case "2":
+                        return GameType.NumericalTicTacToe;
+                    case "3":
+                        return GameType.Notakto;
+                    case "4":
+                        return GameType.Gomoku;
+                    case "5":
+                        return GameType.ConnectFour;
+                    default:
+                        throw new ArgumentException("Invalid game selection. Please enter a number from 1 to 5.");
+                }
+            }
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
     }
 
     private static GameMode AskGameMode()
@@ -218,21 +279,37 @@ public class Program
             Console.WriteLine("2. Human vs Human");
             Console.Write("Choice: ");
 
-            string? modeChoice = Console.ReadLine();
-
-            return modeChoice switch
+            try
             {
-                "1" => GameMode.HumanVsComputer,
-                "2" => GameMode.HumanVsHuman,
-                _ => AskAgainGameMode()
-            };
+                string modeChoice = ReadRequiredInput();
+
+                switch (modeChoice)
+                {
+                    case "1":
+                        return GameMode.HumanVsComputer;
+                    case "2":
+                        return GameMode.HumanVsHuman;
+                    default:
+                        throw new ArgumentException("Invalid mode selection. Please enter 1 or 2.");
+                }
+            }
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
     }
 
-    private static GameMode AskAgainGameMode()
+    private static string ReadRequiredInput()
     {
-        Console.WriteLine("Invalid mode selection. Defaulting to Human vs Computer.");
-        return GameMode.HumanVsComputer;
+        string? input = Console.ReadLine();
+
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            throw new ArgumentException("Input cannot be empty.");
+        }
+
+        return input.Trim();
     }
 
     private static string ReadOrDefault(string defaultValue)

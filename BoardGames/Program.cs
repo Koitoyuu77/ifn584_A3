@@ -1,5 +1,5 @@
 ﻿using BoardGames.Core;
-using BoardGames.Factories;
+using BoardGames.Factory;
 using BoardGames.Games;
 using BoardGames.SaveLoadManager;
 using BoardGames.UI;

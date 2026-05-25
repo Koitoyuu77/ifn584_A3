@@ -4,7 +4,7 @@ using BoardGames.Games;
 using BoardGames.Players;
 using BoardGames.PlacementStrategies;
 
-namespace BoardGames.Factories;
+namespace BoardGames.Factory;
 
 public class GameFactory
 {

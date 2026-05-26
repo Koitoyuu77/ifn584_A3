@@ -3,6 +3,7 @@ namespace BoardGames.UI;
 
 public enum CommandType
 {
+    Move,
     Undo,
     Redo,
     Save,

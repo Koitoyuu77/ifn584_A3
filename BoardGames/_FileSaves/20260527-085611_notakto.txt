@@ -1,7 +1,7 @@
 Notakto
 HumanVsHuman
 3
-Tri Tin Vo,Ruiming Zhu
+Tri Tin Vo,Ruiming Zhu
 5
 2,0,0,X,1
 2,2,1,X,2

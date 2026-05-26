@@ -16,9 +16,9 @@ public class ConsoleUI
     {
         SafeClear();
 
-        Console.WriteLine("=================================");
-        Console.WriteLine($"  {Pretty(game.Type)}  ({Pretty(game.Mode)})");
-        Console.WriteLine("=================================");
+        Console.WriteLine("========================================");
+        Console.WriteLine($" {Pretty(game.Type)} ({Pretty(game.Mode)})");
+        Console.WriteLine("========================================");
         Console.WriteLine();
 
         RenderBoards(game);
@@ -32,23 +32,14 @@ public class ConsoleUI
         if (!game.IsOver)
         {
             Console.WriteLine();
-            Console.WriteLine($"  * Win Condition: {game.WinConditionDescription}");
+            Console.WriteLine($"  | Win Condition: {game.WinConditionDescription}");
             var p = game.CurrentPlayer;
             Console.WriteLine(p.IsComputer
                 ? $"  {p.Name} (Player {p.Id}) is thinking..."
-                : $"  {p.Name}'s turn (Player {p.Id}). Type 'help' for commands.");
+                : $"  | Type '{game.MoveFormatHint}' to make a move or type 'help' for commands");
         }
     }
 
-    /// <remarks>
-    /// Pseudo Code:
-    /// This method manages displaying multiple boards side-by-side.
-    /// 1. For each board in the game, generate its individual text lines.
-    /// 2. If there's only one board, print its lines directly.
-    /// 3. For multiple boards (like in Notakto), iterate row by row.
-    /// 4. Concatenate the corresponding rows from each board with a gap in between.
-    /// 5. Print the merged row to the console.
-    /// </remarks>
     private void RenderBoards(Game game)
     {
         // Each board renders to a list of strings of equal width.
@@ -82,11 +73,6 @@ public class ConsoleUI
         }
     }
 
-    /// Produces the rendered lines for a single board:
-    ///   - optional caption (label) at the top-left
-    ///   - top separator
-    ///   - alternating cell rows (visual row N-1 first, row 0 last) and separators
-    ///   - column header at the BOTTOM
     private List<string> RenderBoardLines(Board board, string? label)
     {
         int width = ComputeCellWidth(board);
@@ -171,13 +157,11 @@ public class ConsoleUI
         Console.WriteLine("=== Help ===");
         Console.WriteLine($"  Move format for {Pretty(game.Type)}: {game.MoveFormatHint}");
         Console.WriteLine("  Available commands:");
-        Console.WriteLine("    move <args>      — make a move (e.g. 'move 0,1')");
-        Console.WriteLine("    <args>           — bare move syntax also works");
-        Console.WriteLine("    undo             — undo the last move");
-        Console.WriteLine("    redo             => redo a previously undone move");
-        Console.WriteLine("    save             — save the current game (you'll be asked for format)");
-        Console.WriteLine("    help             — show this help");
-        Console.WriteLine("    quit             — exit the current game");
+        Console.WriteLine("    undo            : undo the last move");
+        Console.WriteLine("    redo            : redo a previously undone move");
+        Console.WriteLine("    save            : save the current game (you'll be asked for format)");
+        Console.WriteLine("    help            : show this help");
+        Console.WriteLine("    quit            : exit the current game");
         var extra = game.GetExtraHelpText();
         if (!string.IsNullOrEmpty(extra))
         {
@@ -193,10 +177,10 @@ public class ConsoleUI
     {
         Console.WriteLine();
         Console.WriteLine("=== Game over ===");
-        if (game.IsDraw) Console.WriteLine("  Result: DRAW");
+        if (game.IsDraw) Console.WriteLine(" [!] Result: DRAW");
         else if (game.Winner is not null)
-            Console.WriteLine($"  Winner: {game.Winner.Name} (Player {game.Winner.Id})");
-        else Console.WriteLine("  Result: ended.");
+            Console.WriteLine($" [!] Winner: {game.Winner.Name} (Player {game.Winner.Id})");
+        else Console.WriteLine(" [!] Result: ended.");
         Console.WriteLine();
     }
 

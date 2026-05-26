@@ -9,7 +9,7 @@ public class TicTacToeGame : Game
 {
     public override GameType Type => GameType.TicTacToe;
     public override string MoveFormatHint 
-        => "row,col   (e.g. 0,0 = bottom-left, rows count up from the bottom)";
+        => "row,col (e.g. 0,0 = bottom-left)";
     
     public TicTacToeGame(int size, GameMode mode, List<Player> players)
     {

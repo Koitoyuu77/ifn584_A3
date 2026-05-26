@@ -9,7 +9,7 @@ public class NotaktoGame : Game
 {
     public override GameType Type => GameType.Notakto;
 
-    public override string MoveFormatHint => "board row col or board, row, col (e.g. 1 0 2 or 1, 0, 2)";
+    public override string MoveFormatHint => "board,row,col (e.g. 1,0,2)";
 
     // Notakto is a misère game:
     // the player who causes the final losing condition loses.

@@ -8,7 +8,7 @@ namespace BoardGames.Games;
 public class GomokuGame : Game
 {
     public override GameType Type => GameType.Gomoku;
-    public override string MoveFormatHint => "row, col (e.g. 0, 1)";
+    public override string MoveFormatHint => "row,col (e.g. 0,1)";
     
     public GomokuGame(int size, GameMode mode, List<Player> players) // Constructor
     {

@@ -10,7 +10,8 @@ public class NumericalTicTacToeGame : Game
     private readonly int _n; // Board size (n x n)
     public override GameType Type => GameType.NumericalTicTacToe;
 
-    public override string MoveFormatHint => "row,col,number e.g.(1,0,5)";
+    public override string MoveFormatHint 
+        => $"row,col,number e.g.(1,0,5). Numbers in game: [{string.Join(", ", Enumerable.Range(1, _n * _n))}]";
 
     public NumericalTicTacToeGame(int n, GameMode mode, List<Player> players)
     {
@@ -47,10 +48,44 @@ public class NumericalTicTacToeGame : Game
     public override Move? ParseMove(string input, Player player)
     {
         var parts = input.Split(',', StringSplitOptions.TrimEntries);
-        if (parts.Length != 3 || !int.TryParse(parts[0], out int visualRow) || !int.TryParse(parts[1], out int col) || !int.TryParse(parts[2], out int n))
-            return null;
+        if (parts.Length != 3)
+        {
+            return null; // Return null to indicate wrong format so standard handler can show format hint
+        }
 
-        if (!GetAvailableNumbers(player).Contains(n)) return null;
+        if (!int.TryParse(parts[0], out int visualRow) || !int.TryParse(parts[1], out int col) || !int.TryParse(parts[2], out int n))
+        {
+            throw new ArgumentException("Row, column, and number must all be integers.");
+        }
+
+        if (visualRow < 0 || visualRow >= BoardSize || col < 0 || col >= BoardSize)
+        {
+            throw new ArgumentException($"Row and column must be between 0 and {BoardSize - 1}.");
+        }
+
+        int maxNumber = BoardSize * BoardSize;
+        if (n < 1 || n > maxNumber)
+        {
+            throw new ArgumentException($"Number {n} is not in range. It must be between 1 and {maxNumber}.");
+        }
+
+        bool isOdd = n % 2 == 1;
+        bool wantOdd = player.Id == 1; // Player 1 plays odd, Player 2 plays even
+        if (isOdd != wantOdd)
+        {
+            throw new ArgumentException($"Player {player.Name} must use {(wantOdd ? "odd" : "even")} numbers.");
+        }
+
+        var usedNumbers = Boards[0].Cells()
+            .Where(c => !c.IsEmpty && int.TryParse(c.Piece!.Symbol, out _))
+            .Select(c => int.Parse(c.Piece!.Symbol))
+            .ToHashSet();
+
+        if (usedNumbers.Contains(n))
+        {
+            throw new ArgumentException($"Number {n} has already been used on the board.");
+        }
+
         return new Move(ToInternalRow(visualRow), col, 0, new Piece(n.ToString(), player.Id), player.Id);
     }
 

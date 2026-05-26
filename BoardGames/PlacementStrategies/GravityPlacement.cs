@@ -14,7 +14,7 @@ public class GravityPlacement : IPlacementStrategy
         }
 
         // from bottom to top, find the first empty cell in the column
-        for (int row = 0; row < board.Rows; row++)
+        for (int row = board.Rows - 1; row >= 0; row--)
         {
             if (board.GetCell(row, move.Col).IsEmpty)
             {

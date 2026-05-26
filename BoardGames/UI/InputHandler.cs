@@ -54,29 +54,63 @@ public class InputHandler
             moveText = string.Join(", ", parts.Skip(1));
         }
 
-        Move? move = game.ParseMove(moveText, game.CurrentPlayer);
-
-        if (move is null)
+        try
         {
-            return new Command(
-                CommandType.Unknown,
-                raw,
-                $"Invalid move format. Expected: {game.MoveFormatHint}"
-            );
-        }
+            Move? move = game.ParseMove(moveText, game.CurrentPlayer);
 
-        return new Command(CommandType.Move, raw, move: move);
+            if (move is null)
+            {
+                return new Command(
+                    CommandType.Unknown,
+                    raw,
+                    $"[!] Invalid move format. Expected: {game.MoveFormatHint}"
+                );
+            }
+
+            return new Command(CommandType.Move, raw, move: move);
+        }
+        catch (ArgumentException ex)
+        {
+            return new Command(CommandType.Unknown, raw, ex.Message);
+        }
     }
 
     private Command TryParseDirectMove(string raw, Game game)
     {
-        Move? move = game.ParseMove(raw, game.CurrentPlayer);
-
-        if (move is not null)
+        try
         {
-            return new Command(CommandType.Move, raw, move: move);
-        }
+            Move? move = game.ParseMove(raw, game.CurrentPlayer);
 
-        return new Command(CommandType.Unknown, raw, "Unknown command. Type 'help' to see available commands.");
+            if (move is not null)
+            {
+                return new Command(CommandType.Move, raw, move: move);
+            }
+
+            // If it looks like a coordinate or number input, give a coordinate-oriented error message
+            if (IsLikelyMoveInput(raw, game))
+            {
+                return new Command(
+                    CommandType.Unknown,
+                    raw,
+                    $"[!] Invalid move format. Expected: {game.MoveFormatHint}"
+                );
+            }
+
+            return new Command(CommandType.Unknown, raw, "[!] Unknown command. Type 'help' to see available commands.");
+        }
+        catch (ArgumentException ex)
+        {
+            return new Command(CommandType.Unknown, raw, ex.Message);
+        }
+    }
+
+    private static bool IsLikelyMoveInput(string input, Game game)
+    {
+        if (string.IsNullOrWhiteSpace(input)) return false;
+        if (game.Type == GameType.ConnectFour)
+        {
+            return int.TryParse(input, out _);
+        }
+        return input.Any(char.IsDigit) && (input.Contains(',') || input.Contains(' '));
     }
 }

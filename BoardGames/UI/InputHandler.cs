@@ -23,28 +23,10 @@ public class InputHandler
             "redo" => new Command(CommandType.Redo, raw),
             "help" => new Command(CommandType.Help, raw),
             "quit" or "q" or "exit" => new Command(CommandType.Quit, raw),
-            "save" => ParseSaveCommand(raw, parts),
+            "save" => new Command(CommandType.Save, raw),
             "move" or "m" => ParseMoveCommand(raw, parts, game),
             _ => TryParseDirectMove(raw, game)
         };
-    }
-
-    private Command ParseSaveCommand(string raw, string[] parts)
-    {
-        if (parts.Length < 2)
-        {
-            return new Command(CommandType.Unknown, raw, "Missing file name. Example: save game1.json");
-        }
-
-        string fileName = parts[1];
-
-        if (!fileName.EndsWith(".json", StringComparison.OrdinalIgnoreCase) &&
-            !fileName.EndsWith(".txt", StringComparison.OrdinalIgnoreCase))
-        {
-            return new Command(CommandType.Unknown, raw, "Save file must end with .json or .txt");
-        }
-
-        return new Command(CommandType.Save, raw, fileName);
     }
 
     private Command ParseMoveCommand(string raw, string[] parts, Game game)

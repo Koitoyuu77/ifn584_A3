@@ -6,7 +6,7 @@ namespace BoardGames.SaveLoadManager;
 
 public class SaveLoadManager
 {
-    private readonly Dictionary<string, ISaveFormat> _formats = new(); //Map from file extension to save format implementation.
+    private readonly Dictionary<string, ISaveFormat> _formats = new(StringComparer.OrdinalIgnoreCase); //Map from file extension to save format implementation.
     public SaveLoadManager()
     {
         //Register supported formats here. Add new formats by implementing ISaveFormat and registering them in this constructor.

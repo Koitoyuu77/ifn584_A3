@@ -20,7 +20,7 @@ public class NumericalTicTacToeGame : Game
         Players = players;
         Boards.Add(new Board(n, n));
         int target = n * (n * n + 1) / 2;
-        WinStrategy = new SumLineWinStrategy(target, n);
+        WinStrategy = new SumLineWinStrategy(n, target);
         Placement = new StandardPlacement();
     }
 

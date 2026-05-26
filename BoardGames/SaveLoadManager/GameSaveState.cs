@@ -24,40 +24,4 @@ public class GameSaveState
         //Clamp cursor between 0 and movelog count
         Cursor = Math.Clamp(Cursor, 0, MoveLog.Count);
     }
-    // Add new move that auto handle the cursor and discard any undone moves.
-    public void AddMove(Move move)
-    {
-        //Ensure cursor is within bounds
-        NormalizeCursor();
-        if (Cursor < MoveLog.Count)
-        {
-            //If cursor is not at the end of the movelog, discard any undone moves
-            MoveLog.RemoveRange(Cursor, MoveLog.Count - Cursor);
-        }
-        MoveLog.Add(move);
-        Cursor = MoveLog.Count; //Move cursor to the end of the movelog
-    }
-
-    //Undo the last move.
-    public bool Undo ()
-    {
-        NormalizeCursor();
-        if (Cursor > 0)
-        {
-            Cursor--; //Move cursor back by one
-            return true;
-        }
-        return false; //No moves to undo
-    }
-    //Redo the next move.
-    public bool Redo()
-    {
-        NormalizeCursor();
-        if (Cursor < MoveLog.Count)
-        {
-            Cursor++; //Move cursor forward by one
-            return true;
-        }
-        return false; //No moves to redo
-    }
 }

@@ -1,0 +1,52 @@
+{
+  "gameType": "TicTacToe",
+  "gameMode": "HumanVsComputer",
+  "boardSize": 4,
+  "moveLog": [
+    {
+      "row": 3,
+      "col": 1,
+      "boardIndex": 0,
+      "piece": {
+        "symbol": "X",
+        "ownerId": 1
+      },
+      "playerId": 1
+    },
+    {
+      "row": 2,
+      "col": 3,
+      "boardIndex": 0,
+      "piece": {
+        "symbol": "O",
+        "ownerId": 2
+      },
+      "playerId": 2
+    },
+    {
+      "row": 3,
+      "col": 2,
+      "boardIndex": 0,
+      "piece": {
+        "symbol": "X",
+        "ownerId": 1
+      },
+      "playerId": 1
+    },
+    {
+      "row": 3,
+      "col": 3,
+      "boardIndex": 0,
+      "piece": {
+        "symbol": "O",
+        "ownerId": 2
+      },
+      "playerId": 2
+    }
+  ],
+  "playerNames": [
+    "jim",
+    "Computer"
+  ],
+  "cursor": 4
+}

@@ -11,18 +11,19 @@ public class ConnectFourGame : Game
 
     public override string MoveFormatHint => "col (e.g. 2)";
 
-    public ConnectFourGame()
+    public ConnectFourGame(GameMode mode, List<Player> players)
     {
-        this.BoardSize = 7;
-        this.Boards.Add(new Board(6, 7));
-
-        this.WinStrategy = new LineWinStrategy(4);  // line 4 to win
-        this.Placement = new GravityPlacement(); // replace original one to this when the Gravity logic is finish -> new GravityPlacement();
+        BoardSize = 7;
+        Mode = mode;
+        Players = players;
+        Boards.Add(new Board(6, 7));
+        WinStrategy = new LineWinStrategy(4);
+        Placement = new GravityPlacement();
     }
 
     public override IEnumerable<Piece> GetPiecesAvailable(Player player)
     {
-        string symbol = (player.Id == 0) ?  "X" : "O";
+        string symbol = (player.Id == 1) ?  "X" : "O";
         return new List<Piece> {new Piece(symbol, player.Id)};
     }
 

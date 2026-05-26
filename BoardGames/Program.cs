@@ -24,15 +24,12 @@ public class Program
         var inputHandler = new InputHandler();
         var controller = new GameController(consoleUi, inputHandler, saveLoadManager);
 
-        // GameFactory creates the correct concrete game object.
-        var factory = new GameFactory();
-
         while (true)
         {
             // ============================================================
             // 2. Startup menu: New Game or Load Game
             // ============================================================
-            Game game = AskStartupAction(saveLoadManager, factory);
+            Game game = AskStartupAction(saveLoadManager);
 
             // ============================================================
             // 3. Start the game loop
@@ -46,7 +43,7 @@ public class Program
         }
     }
 
-    private static Game AskStartupAction(SaveLoadManager.SaveLoadManager saveLoadManager, GameFactory factory)
+    private static Game AskStartupAction(SaveLoadManager.SaveLoadManager saveLoadManager)
     {
         while (true)
         {
@@ -64,9 +61,9 @@ public class Program
                 switch (choice)
                 {
                     case "1":
-                        return CreateNewGame(factory);
+                        return CreateNewGame();
                     case "2":
-                        return LoadGameFromFile(saveLoadManager, factory);
+                        return LoadGameFromFile(saveLoadManager);
                     default:
                         throw new ArgumentException("Invalid option. Please enter 1 for New Game or 2 for Load Game.");
                 }
@@ -110,7 +107,7 @@ public class Program
         }
     }
 
-    private static Game CreateNewGame(GameFactory factory)
+    private static Game CreateNewGame()
     {
         // ============================================================
         // New game setup
@@ -121,18 +118,63 @@ public class Program
         Console.Write("Enter Player 1 name: ");
         string player1Name = ReadOrDefault("Player 1");
 
-        string? player2Name = null;
+        // Gather names into a list based on the game mode
+        List<string> names = [player1Name];
 
         if (gameMode == GameMode.HumanVsHuman)
         {
             Console.Write("Enter Player 2 name: ");
-            player2Name = ReadOrDefault("Player 2");
+            string player2Name = ReadOrDefault("Player 2");
+            names.Add(player2Name);
+        }
+        else
+        {
+            names.Add("Computer"); // Default fallback for PvE
         }
 
-        return factory.InitGameFactory(gameType, gameMode, player1Name, player2Name);
+        // Define the board size based on the game type, with user input for certain games, default as 3
+
+        int boardSize = 3;
+        if (gameType is GameType.TicTacToe or GameType.NumericalTicTacToe or GameType.Gomoku)
+        {
+            int defaultSize = gameType == GameType.Gomoku ? 15 : 3;
+            Console.WriteLine("---------------------------");
+
+            while (true)
+            {
+                Console.Write($"Board size (default {defaultSize}): ");
+                string? sizeIn = Console.ReadLine();
+
+                // If user just presses Enter, apply the game default
+                if (string.IsNullOrWhiteSpace(sizeIn))
+                {
+                    boardSize = defaultSize;
+                    break;
+                }
+
+                // Validate that it's a valid integer and meets the structural minimum
+                if (!int.TryParse(sizeIn, out boardSize) || boardSize < 3)
+                {
+                    Console.WriteLine("Invalid input. Size must be a valid number and at least 3.");
+                    continue;
+                }
+
+                // Enforce specific rule for Gomoku
+                if (gameType == GameType.Gomoku && boardSize < 5)
+                {
+                    Console.WriteLine("Gomoku requires a board size of at least 5.");
+                    continue;
+                }
+
+                break; // Input is valid, break out of the size selection loop
+            }
+        } 
+
+        // Call the static Create method directly on the GameFactory class
+        return GameFactory.CreateGame(gameType, gameMode, boardSize, names);
     }
 
-    private static Game LoadGameFromFile(SaveLoadManager.SaveLoadManager saveLoadManager, GameFactory factory)
+    private static Game LoadGameFromFile(SaveLoadManager.SaveLoadManager saveLoadManager)
     {
         while (true)
         {
@@ -151,7 +193,7 @@ public class Program
                 GameSaveState saveState = saveLoadManager.Load(filePath);
 
                 // Rebuild the Game object from the save data.
-                Game game = RestoreGameFromSave(saveState, factory);
+                Game game = RestoreGameFromSave(saveState);
 
                 Console.WriteLine("Game loaded successfully.");
                 Console.WriteLine("Press Enter to continue...");
@@ -168,17 +210,15 @@ public class Program
                 if (!string.Equals(retry, "y", StringComparison.OrdinalIgnoreCase))
                 {
                     Console.WriteLine("Starting a new game instead.");
-                    return CreateNewGame(factory);
+                    return CreateNewGame(); // Removed factory parameter
                 }
             }
         }
     }
 
-    private static Game RestoreGameFromSave(GameSaveState saveState, GameFactory factory)
+    private static Game RestoreGameFromSave(GameSaveState saveState)
     {
-        // ============================================================
         // Convert saved strings back into enum values
-        // ============================================================
         if (!Enum.TryParse(saveState.GameType, out GameType gameType))
         {
             throw new InvalidOperationException($"Invalid game type in save file: {saveState.GameType}");
@@ -189,24 +229,35 @@ public class Program
             throw new InvalidOperationException($"Invalid game mode in save file: {saveState.GameMode}");
         }
 
-        // ============================================================
-        // Restore player names
-        // ============================================================
+        // Restore player names into a List<string>
+        List<string> names = [];
+
         string player1Name = saveState.PlayerNames.Count > 0
             ? saveState.PlayerNames[0]
             : "Player 1";
-
-        string? player2Name = null;
+        names.Add(player1Name);
 
         if (gameMode == GameMode.HumanVsHuman)
         {
-            player2Name = saveState.PlayerNames.Count > 1
+            string player2Name = saveState.PlayerNames.Count > 1
                 ? saveState.PlayerNames[1]
                 : "Player 2";
+            names.Add(player2Name);
+        }
+        else
+        {
+            string player2Name = saveState.PlayerNames.Count > 1
+                ? saveState.PlayerNames[1]
+                : "Computer";
+            names.Add(player2Name);
         }
 
-        // Create a fresh game with the same game type, mode, and players.
-        Game game = factory.InitGameFactory(gameType, gameMode, player1Name, player2Name);
+        // Grab the saved board size (Assuming your saveState has a Size/BoardSize property)
+        // If it doesn't, replace 'saveState.BoardSize' with a default number or add it to your SaveState class.
+        int boardSize = saveState.BoardSize; 
+
+        // Create a fresh game using the updated static factory method
+        Game game = GameFactory.CreateGame(gameType, gameMode, boardSize, names);
 
         // Make sure Cursor is inside the valid range.
         saveState.NormalizeCursor();

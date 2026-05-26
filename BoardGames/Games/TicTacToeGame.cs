@@ -8,20 +8,22 @@ namespace BoardGames.Games;
 public class TicTacToeGame : Game
 {
     public override GameType Type => GameType.TicTacToe;
-    public override string MoveFormatHint => "row, col (e.g. 0, 1)";
+    public override string MoveFormatHint 
+        => "row,col   (e.g. 0,0 = bottom-left, rows count up from the bottom)";
     
-    public TicTacToeGame() // constructor
+    public TicTacToeGame(int size, GameMode mode, List<Player> players)
     {
-        this.BoardSize = 3;
-        this.Boards.Add(new Board(3, 3));
-        
-        this.WinStrategy = new LineWinStrategy(3);
-        this.Placement = new StandardPlacement();
+        BoardSize = size;
+        Mode = mode;
+        Players = players;
+        Boards.Add(new Board(size, size));
+        WinStrategy = new LineWinStrategy(size == 3 ? 3 : Math.Min(size, 5));
+        Placement = new StandardPlacement();
     }
 
     public override IEnumerable<Piece> GetPiecesAvailable(Player player) // get player available Piece
     {
-        string symbol = (player.Id == 0) ? "X" : "O"; // player 0 use "X", player 1 use "O"
+        string symbol = (player.Id == 1) ? "X" : "O"; // player 0 use "X", player 1 use "O"
         return new List<Piece> {new Piece(symbol, player.Id)};
     }
 

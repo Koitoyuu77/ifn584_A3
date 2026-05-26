@@ -10,18 +10,19 @@ public class GomokuGame : Game
     public override GameType Type => GameType.Gomoku;
     public override string MoveFormatHint => "row, col (e.g. 0, 1)";
     
-    public GomokuGame() // constructor
+    public GomokuGame(int size, GameMode mode, List<Player> players) // Constructor
     {
-        this.BoardSize = 15;
-        this.Boards.Add(new Board(15, 15));
-        
-        this.WinStrategy = new LineWinStrategy(5);
-        this.Placement = new StandardPlacement();
+        BoardSize = size;
+        Mode = mode;
+        Players = players;
+        Boards.Add(new Board(size, size));
+        WinStrategy = new LineWinStrategy(5);
+        Placement = new StandardPlacement();
     }
 
     public override IEnumerable<Piece> GetPiecesAvailable(Player player) // get player available Piece
     {
-        string symbol = (player.Id == 0) ? "X" : "O"; // player 0 use "X", player 1 use "O"
+        string symbol = (player.Id == 1) ? "X" : "O"; // player 0 use "X", player 1 use "O"
         return new List<Piece> {new Piece(symbol, player.Id)};
     }
 

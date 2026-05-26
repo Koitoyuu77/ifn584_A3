@@ -15,14 +15,13 @@ public class NotaktoGame : Game
     // the player who causes the final losing condition loses.
     public override bool IsMisere => true;
 
-    public NotaktoGame()
+    public NotaktoGame(GameMode mode, List<Player> players)
     {
         BoardSize = 3;
-
+        Mode = mode;
+        Players = players;
         // Notakto uses three separate 3x3 boards.
-        Boards.Add(new Board(3, 3));
-        Boards.Add(new Board(3, 3));
-        Boards.Add(new Board(3, 3));
+        for (int i = 0; i < 3; i++) Boards.Add(new Board(3, 3));
 
         WinStrategy = new MisereLineWinStrategy();
         Placement = new StandardPlacement();

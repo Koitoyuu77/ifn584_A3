@@ -31,10 +31,7 @@ public class NotaktoGame : Game
     public override IEnumerable<Piece> GetPiecesAvailable(Player player)
     {
         // In Notakto, both players place the same piece: X.
-        return new List<Piece>
-        {
-            new Piece("X", player.Id)
-        };
+        yield return new Piece("X", player.Id);
     }
 
     public override Move? ParseMove(string input, Player player)
@@ -88,7 +85,7 @@ public class NotaktoGame : Game
 
         Piece piece = GetPiecesAvailable(player).First();
 
-        return new Move(row, col, boardIndex, piece, player.Id);
+        return new Move(ToInternalRow(row, boardIndex), col, boardIndex, piece, player.Id);
     }
 
     public override bool IsValidMove(Move move)

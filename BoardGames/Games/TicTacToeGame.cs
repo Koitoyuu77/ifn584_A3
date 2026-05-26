@@ -58,6 +58,6 @@ public class TicTacToeGame : Game
 
         Piece piece = GetPiecesAvailable(player).First();
 
-        return new Move(row, col, 0, piece, player.Id);
+        return new Move(ToInternalRow(row), col, 0, piece, player.Id);
     }
 }

@@ -62,7 +62,7 @@ public class NumericalTicTacToeGame : Game
     {
         try
         {
-            var parts = input.Split(new char[]{',', ' '}, StringSplitOptions.RemoveEmptyEntries);
+            var parts = input.Split([',', ' '], StringSplitOptions.RemoveEmptyEntries);
             if (parts.Length != 3) return null;
 
             int visualRow = int.Parse(parts[0].Trim()); // row, col, piece number
@@ -84,7 +84,7 @@ public class NumericalTicTacToeGame : Game
             if (matchingPiece == null) return null; // if current player do not have this number or that number is used -> invalid input
             
             // Original: Convert Player visual row to internal row index -> Current: Align directly with the UI's coordinate system without convert. 
-            int internalRow = visualRow;
+            int internalRow = ToInternalRow(visualRow); // parse input bottom up (0,0 is the bottom-left corner)  
             if (col < 0 || col >= this.BoardSize || internalRow < 0 || internalRow >= this.BoardSize) //boundary check
                 return null;
 

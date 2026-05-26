@@ -29,14 +29,14 @@ public class GomokuGame : Game
     {
         try
         {
-            var parts = input.Split(new char[] {',', ' '}, StringSplitOptions.RemoveEmptyEntries);
+            var parts = input.Split([',', ' '], StringSplitOptions.RemoveEmptyEntries);
             if (parts.Length != 2) return null;
 
             int visualRow = int.Parse(parts[0].Trim());
             int col = int.Parse(parts[1].Trim());
 
             // Original: Convert Player visual row to internal row index -> Current: Align directly with the UI's coordinate system without convert. 
-            int internalRow = visualRow;
+            int internalRow = ToInternalRow(visualRow); // Flip the row index to match the internal representation (0,0 is bottom-left)
             if (col < 0 || col >= this.BoardSize || internalRow < 0 || internalRow >= this.BoardSize) // boundary check
                 return null;
 

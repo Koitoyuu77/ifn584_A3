@@ -46,7 +46,7 @@ public abstract class Game
     // Parse input from player into a Move
     public abstract Move? ParseMove(string input, Player player);
 
-    protected int ToInternalRow(int visualRow, int boardIdx = 0)
+    protected int ToInternalRow(int visualRow, int boardIdx = 0) // Use this to parse input bottom up (0,0 is the bottom-left corner)
         => (Boards[boardIdx].Rows - 1) - visualRow;
 
     protected int ToVisualRow(int internalRow, int boardIdx = 0)

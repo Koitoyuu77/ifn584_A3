@@ -5,9 +5,10 @@ namespace BoardGames.WinStrategies;
 using BoardGames.Core;
 using BoardGames.PlacementStrategies;
 
-public class MisereLineWinStrategy : IWinStrategy
+public class MisereLineWinStrategy(int length = 3) : IWinStrategy
 {
-    public string Description => "Misere line win strategy";
+    private readonly int _length = length;
+    public string Description => $"Avoid completing a line of {_length}";
 
     public WinResult CheckWin(IReadOnlyList<Board> boards, Move lastMove)
     {

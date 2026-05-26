@@ -11,7 +11,7 @@ public class SumLineWinStrategy : IWinStrategy
     private readonly int _lineLength;
     private readonly int _targetSum;
 
-    public string Description => "Sum line win strategy";
+    public string Description => $"{_lineLength} in a row summing to {_targetSum}";
 
     public SumLineWinStrategy(int lineLength,int targetSum)
     {

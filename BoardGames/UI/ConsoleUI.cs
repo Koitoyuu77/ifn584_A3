@@ -1,5 +1,6 @@
 /// Full-screen render: clears the terminal and draws header + boards + status.
 /// Call once per turn (or after any state change worth showing)
+using System.Text;
 using BoardGames.Core;
 using BoardGames.Games;
 
@@ -7,179 +8,212 @@ namespace BoardGames.UI;
 
 public class ConsoleUI
 {
-    public void Render(Game game, string statusMessage = "")
+    private string _statusLine = "";
+    public void SetStatus(string message) => _statusLine = message;
+    public void ClearStatus() => _statusLine = "";
+    
+    public void Render(Game game)
     {
-        Console.Clear();
+        SafeClear();
 
-        DrawHeader(game);
-        DrawBoards(game);
+        Console.WriteLine("=================================");
+        Console.WriteLine($"  {Pretty(game.Type)}  ({Pretty(game.Mode)})");
+        Console.WriteLine("=================================");
+        Console.WriteLine();
 
-        if (!string.IsNullOrWhiteSpace(statusMessage))
+        RenderBoards(game);
+
+        if (!string.IsNullOrEmpty(_statusLine))
         {
             Console.WriteLine();
-            Console.WriteLine($"Status: {statusMessage}");
+            Console.WriteLine($"  {_statusLine}");
         }
 
-        Console.WriteLine();
-        Console.WriteLine($"Current Player: {game.CurrentPlayer.Name}");
-        Console.WriteLine("Type 'help' to view available commands.");
+        if (!game.IsOver)
+        {
+            Console.WriteLine();
+            Console.WriteLine($"  * Win Condition: {game.WinConditionDescription}");
+            var p = game.CurrentPlayer;
+            Console.WriteLine(p.IsComputer
+                ? $"  {p.Name} (Player {p.Id}) is thinking..."
+                : $"  {p.Name}'s turn (Player {p.Id}). Type 'help' for commands.");
+        }
     }
 
-    public string ReadInput()
+    /// <remarks>
+    /// Pseudo Code:
+    /// This method manages displaying multiple boards side-by-side.
+    /// 1. For each board in the game, generate its individual text lines.
+    /// 2. If there's only one board, print its lines directly.
+    /// 3. For multiple boards (like in Notakto), iterate row by row.
+    /// 4. Concatenate the corresponding rows from each board with a gap in between.
+    /// 5. Print the merged row to the console.
+    /// </remarks>
+    private void RenderBoards(Game game)
     {
-        Console.Write("> ");
-        return Console.ReadLine() ?? string.Empty;
+        // Each board renders to a list of strings of equal width.
+        // For multi-board games (Notakto) we paste them side by side with a 4-space gap.
+        List<List<string>> perBoardLines = [];
+        for (int i = 0; i < game.Boards.Count; i++)
+        {
+            var caption = game.GetBoardCaption(i);
+            perBoardLines.Add(RenderBoardLines(game.Boards[i], caption));
+        }
+
+        if (perBoardLines.Count == 1)
+        {
+            foreach (var line in perBoardLines[0]) Console.WriteLine(line);
+            return;
+        }
+
+        int height = perBoardLines.Max(b => b.Count);
+        int[] widths = perBoardLines.Select(b => b.Max(l => l.Length)).ToArray();
+        const string gap = "    ";
+        for (int row = 0; row < height; row++)
+        {
+            StringBuilder sb = new();
+            for (int b = 0; b < perBoardLines.Count; b++)
+            {
+                if (b > 0) sb.Append(gap);
+                var line = row < perBoardLines[b].Count ? perBoardLines[b][row] : "";
+                sb.Append(line.PadRight(widths[b]));
+            }
+            Console.WriteLine(sb.ToString());
+        }
+    }
+
+    /// Produces the rendered lines for a single board:
+    ///   - optional caption (label) at the top-left
+    ///   - top separator
+    ///   - alternating cell rows (visual row N-1 first, row 0 last) and separators
+    ///   - column header at the BOTTOM
+    private List<string> RenderBoardLines(Board board, string? label)
+    {
+        int width = ComputeCellWidth(board);
+        int leftGutter = 3; // matches "_R_" — two-char row label + 1 space
+        int cellWidth = width + 3; // "| " + symbol + " "
+        int totalWidth = leftGutter + cellWidth * board.Cols + 1; // +1 for closing "|"
+
+        List<string> lines = [];
+
+        if (!string.IsNullOrEmpty(label))
+            lines.Add(label.PadRight(totalWidth));
+
+        var sep = BuildSeparator(board.Cols, width, leftGutter);
+        lines.Add(sep);
+
+        // Internal row 0 is at the top of the display; internal row N-1 at the bottom.
+        // The visual label flips: visualRow = (Rows - 1) - internalRow.
+        for (int r = 0; r < board.Rows; r++)
+        {
+            int visualRow = (board.Rows - 1) - r;
+            StringBuilder sb = new();
+            sb.Append(visualRow.ToString().PadLeft(2)).Append(' ');
+            for (int c = 0; c < board.Cols; c++)
+            {
+                var cell = board.GetCell(r, c);
+                string sym = cell.IsEmpty ? "" : cell.Piece!.Symbol;
+                sb.Append("| ").Append(sym.PadLeft(width)).Append(' ');
+            }
+            sb.Append('|');
+            lines.Add(sb.ToString());
+            lines.Add(sep);
+        }
+
+        // Column header at the bottom — aligned with cell symbols.
+        StringBuilder hdr = new();
+        hdr.Append(new string(' ', leftGutter));
+        for (int c = 0; c < board.Cols; c++)
+            hdr.Append("  ").Append(c.ToString().PadLeft(width)).Append(' ');
+        lines.Add(hdr.ToString());
+
+        // Pad every line to total width (so side-by-side board rendering aligns cleanly).
+        for (int i = 0; i < lines.Count; i++)
+            if (lines[i].Length < totalWidth)
+                lines[i] = lines[i].PadRight(totalWidth);
+
+        return lines;
+    }
+
+    private static string BuildSeparator(int cols, int width, int leftGutter)
+    {
+        StringBuilder sb = new();
+        sb.Append(new string(' ', leftGutter));
+        for (int c = 0; c < cols; c++)
+            sb.Append('+').Append(new string('-', width + 2));
+        sb.Append('+');
+        return sb.ToString();
+    }
+    
+    // Calculate the required width for each cell based on piece symbols and column numbers.
+    private static int ComputeCellWidth(Board board)
+    {
+        int max = 1;
+        for (int r = 0; r < board.Rows; r++)
+            for (int c = 0; c < board.Cols; c++)
+                if (!board.GetCell(r, c).IsEmpty)
+                    max = Math.Max(max, board.GetCell(r, c).Piece!.Symbol.Length);
+        // Also accommodate the largest column number we'll print.
+        max = Math.Max(max, (board.Cols - 1).ToString().Length);
+        return max;
+    }
+
+    public string? Prompt(string message)
+    {
+        Console.Write(message);
+        var line = Console.ReadLine();
+        return line?.Trim();
     }
 
     public void ShowHelp(Game game)
     {
         Console.WriteLine();
-        Console.WriteLine("Available in-game commands:");
-        Console.WriteLine("  move <row> <col>           Place a piece on the board");
-        Console.WriteLine("  move <board> <row> <col>   Place a piece on a specific Notakto board");
-        Console.WriteLine("  undo                       Undo the previous move");
-        Console.WriteLine("  redo                       Redo the previously undone move");
-        Console.WriteLine("  save <file.json>           Save game as JSON");
-        Console.WriteLine("  save <file.txt>            Save game as plain text");
-        Console.WriteLine("  help                       Show this help menu");
-        Console.WriteLine("  quit                       Quit the current game");
-
-        Console.WriteLine();
-        Console.WriteLine("Examples:");
-        Console.WriteLine("  move 0 1");
-        Console.WriteLine("  move 2 0 1");
-        Console.WriteLine("  save game1.json");
-        Console.WriteLine("  undo");
-
-        Console.WriteLine();
-        Console.WriteLine("Press Enter to continue...");
-        Console.ReadLine();
-    }
-
-    public void ShowFinalResult(Game game)
-    {
-        Console.WriteLine();
-
-        if (game.IsDraw)
+        Console.WriteLine("=== Help ===");
+        Console.WriteLine($"  Move format for {Pretty(game.Type)}: {game.MoveFormatHint}");
+        Console.WriteLine("  Available commands:");
+        Console.WriteLine("    move <args>      — make a move (e.g. 'move 0,1')");
+        Console.WriteLine("    <args>           — bare move syntax also works");
+        Console.WriteLine("    undo             — undo the last move");
+        Console.WriteLine("    redo             => redo a previously undone move");
+        Console.WriteLine("    save             — save the current game (you'll be asked for format)");
+        Console.WriteLine("    help             — show this help");
+        Console.WriteLine("    quit             — exit the current game");
+        var extra = game.GetExtraHelpText();
+        if (!string.IsNullOrEmpty(extra))
         {
-            Console.WriteLine("Game finished: Draw.");
-        }
-        else if (game.Winner is not null)
-        {
-            Console.WriteLine($"Game finished: {game.Winner.Name} wins!");
-        }
-        else
-        {
-            Console.WriteLine("Game finished.");
-        }
-    }
-
-    private void DrawHeader(Game game)
-    {
-        Console.WriteLine("========================================");
-        Console.WriteLine($" {game.Type}");
-        Console.WriteLine("========================================");
-        Console.WriteLine();
-    }
-
-    private void DrawBoards(Game game)
-    {
-        if (game.Boards.Count == 1)
-        {
-            DrawSingleBoard(game.Boards[0], game, 0);
-        }
-        else
-        {
-            DrawBoardsSideBySide(game);
-        }
-    }
-
-    private void DrawSingleBoard(Board board, Game game, int boardIndex)
-    {
-        string? caption = game.GetBoardCaption(boardIndex);
-
-        if (!string.IsNullOrWhiteSpace(caption))
-        {
-            Console.WriteLine(caption);
-        }
-
-        for (int visualRow = board.Rows - 1; visualRow >= 0; visualRow--)
-        {
-            Console.Write($"{visualRow} ");
-
-            for (int col = 0; col < board.Cols; col++)
-            {
-                var cell = board.GetCell(visualRow, col);
-                string value = cell.Piece?.ToString() ?? ".";
-                Console.Write($"| {value} ");
-            }
-
-            Console.WriteLine("|");
-        }
-
-        Console.Write("   ");
-        for (int col = 0; col < board.Cols; col++)
-        {
-            Console.Write($" {col}  ");
-        }
-
-        Console.WriteLine();
-    }
-
-    private void DrawBoardsSideBySide(Game game)
-    {
-        int boardCount = game.Boards.Count;
-
-        for (int i = 0; i < boardCount; i++)
-        {
-            string caption = game.GetBoardCaption(i) ?? $"Board {i}";
-            Console.Write(caption.PadRight(18));
-        }
-
-        Console.WriteLine();
-
-        int rows = game.Boards.Max(b => b.Rows);
-
-        for (int visualRow = rows - 1; visualRow >= 0; visualRow--)
-        {
-            for (int boardIndex = 0; boardIndex < boardCount; boardIndex++)
-            {
-                Board board = game.Boards[boardIndex];
-
-                if (visualRow >= board.Rows)
-                {
-                    Console.Write(new string(' ', 18));
-                    continue;
-                }
-
-                Console.Write($"{visualRow} ");
-
-                for (int col = 0; col < board.Cols; col++)
-                {
-                    var cell = board.GetCell(visualRow, col);
-                    string value = cell.Piece?.ToString() ?? ".";
-                    Console.Write($"{value} ");
-                }
-
-                Console.Write("   ");
-            }
-
             Console.WriteLine();
+            Console.WriteLine($"  {extra}");
         }
-
-        for (int boardIndex = 0; boardIndex < boardCount; boardIndex++)
-        {
-            Board board = game.Boards[boardIndex];
-
-            Console.Write("  ");
-            for (int col = 0; col < board.Cols; col++)
-            {
-                Console.Write($"{col} ");
-            }
-
-            Console.Write("     ");
-        }
-
         Console.WriteLine();
+        Console.Write("  Press Enter to continue...");
+        try { Console.ReadLine(); } catch (IOException) { }
+    }
+
+    public void ShowResult(Game game)
+    {
+        Console.WriteLine();
+        Console.WriteLine("=== Game over ===");
+        if (game.IsDraw) Console.WriteLine("  Result: DRAW");
+        else if (game.Winner is not null)
+            Console.WriteLine($"  Winner: {game.Winner.Name} (Player {game.Winner.Id})");
+        else Console.WriteLine("  Result: ended.");
+        Console.WriteLine();
+    }
+
+    private static void SafeClear()
+    {
+        try { Console.Clear(); }
+        catch (IOException)
+        {
+            // Some non-interactive consoles don't support Clear; fall back to blank lines.
+            for (int i = 0; i < 50; i++) Console.WriteLine();
+        }
+    }
+
+    private static string Pretty(Enum value)
+    {
+        // Insert spaces before capitals: "HumanVsComputer" → "Human Vs Computer"
+        var s = value.ToString();
+        return string.Concat(s.Select((c, i) => i > 0 && char.IsUpper(c) ? " " + c : c.ToString()));
     }
 }

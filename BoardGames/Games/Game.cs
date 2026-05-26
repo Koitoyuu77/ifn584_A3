@@ -32,13 +32,16 @@ public abstract class Game
     public Player CurrentPlayer => Players[CurrentPlayerIdx];
 
     public abstract GameType Type { get; }
+    public abstract string MoveFormatHint { get; } // hint string
+    public virtual string WinConditionDescription => WinStrategy.Description;
 
     public abstract IEnumerable<Piece> GetPiecesAvailable(Player player);
 
     // Caption show above each board for Notakto, e.g. BoardIdx, [DEAD]
     public virtual string? GetBoardCaption(int boardIndex) => null;
-
-    public abstract string MoveFormatHint { get; } // hint string
+    
+    // Parse extra help line for the help screen (e.g. Notakto uses it for "Board 0", "[DEAD]")
+    public virtual string? GetExtraHelpText() => null;
 
     // Parse input from player into a Move
     public abstract Move? ParseMove(string input, Player player);

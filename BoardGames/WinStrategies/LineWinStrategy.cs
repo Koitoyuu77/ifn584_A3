@@ -10,7 +10,7 @@ public class LineWinStrategy : IWinStrategy
 {
     private readonly int _length;
 
-    public string Description => "Line win strategy";
+    public string Description => $"{_length} in a row";
 
     public LineWinStrategy(int length)
     {

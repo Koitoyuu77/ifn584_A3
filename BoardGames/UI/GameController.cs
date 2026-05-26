@@ -5,31 +5,20 @@ using BoardGames.SaveLoadManager;
 
 namespace BoardGames.UI;
 
-public class GameController
+public class GameController(ConsoleUI ui, InputHandler inputHandler, SaveLoadManager.SaveLoadManager saveLoadManager)
 {
-    private readonly ConsoleUI _ui;
-    private readonly InputHandler _inputHandler;
-    private readonly SaveLoadManager.SaveLoadManager _saveLoadManager;
-
-    // Tracks the move history for the current session so it can be saved and restarted.
-    //private GameSaveState _currentSaveState = new();
-
-    //Set by HandleLoad to singal Run() to swap to a newly reconstructed game.
-    //private Game? _pendingLoadGame = null;
-    public GameController(ConsoleUI ui, InputHandler inputHandler, SaveLoadManager.SaveLoadManager saveLoadManager)
-    {
-        _ui = ui;
-        _inputHandler = inputHandler;
-        _saveLoadManager = saveLoadManager;
-    }
+    private readonly ConsoleUI _ui = ui;
+    private readonly InputHandler _inputHandler = inputHandler;
+    private readonly SaveLoadManager.SaveLoadManager _saveLoadManager = saveLoadManager;
 
     public void Run(Game game)
     {
-        string status = "Game started.";
+        _ui.ClearStatus();
+        string status = "";
 
         while (!game.IsOver)
         {
-            _ui.Render(game, status);
+            _ui.Render(game);
             
             // Check current round is Computer or not
             if (game.CurrentPlayer.IsComputer)
@@ -49,11 +38,11 @@ public class GameController
                     Move aiMove = computerPlayer.ChooseMove(game);
                     bool success = game.PlayTurn(aiMove);
 
-                    status = success ? "Computer made a move." : "Computer failed to move.";
+                    _ui.SetStatus(success ? "Computer made a move." : "Computer failed to move.");
                 }
                 catch (Exception ex)
                 {
-                    status = $"Computer AI Error: {ex.Message}";
+                    _ui.SetStatus($"Computer AI Error: {ex.Message}");
                 }
 
                 continue;
@@ -61,15 +50,15 @@ public class GameController
 
             else{
                 // Human round: stop and wait for the command.
-                string input = _ui.ReadInput();
+                var input = _ui.Prompt("> ");
                 Command command = _inputHandler.Parse(input, game);
 
                 status = HandleCommand(command, game);
             }
         }
 
-        _ui.Render(game, "Game over.");
-        _ui.ShowFinalResult(game);
+        _ui.Render(game);
+        _ui.ShowResult(game);
     }
 
     private string HandleCommand(Command command, Game game)

@@ -24,7 +24,6 @@ public class InputHandler
             "help" => new Command(CommandType.Help, raw),
             "quit" or "q" or "exit" => new Command(CommandType.Quit, raw),
             "save" => new Command(CommandType.Save, raw),
-            "move" or "m" => ParseMoveCommand(raw, parts, game),
             _ => TryParseDirectMove(raw, game)
         };
     }

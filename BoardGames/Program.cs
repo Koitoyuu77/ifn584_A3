@@ -52,18 +52,20 @@ public class Program
         while (true)
         {
             ClearScreen();
-            Console.WriteLine("==============================");
-            Console.WriteLine(" IFN584 Board Games Framework ");
-            Console.WriteLine("==============================");
+            Console.WriteLine("==========================================");
+            Console.WriteLine(" IFN584 - Group 7 | Board Games Framework ");
+            Console.WriteLine("==========================================");
             Console.WriteLine(" 1. New Game");
             Console.WriteLine(" 2. Load Game");
             Console.WriteLine(" 3. Exit");
+            Console.WriteLine("------------------------------------------");
+            Console.WriteLine(" By: Tri Tin Vo, Ruiming Zhu, Weiyun Hsu, Keerati Kongsricharoen, Shenqui Zhang ");
             if (!string.IsNullOrEmpty(error))
             {
                 Console.WriteLine();
                 Console.WriteLine($"  {error}");
             }
-            Console.WriteLine("------------------------------");
+            Console.WriteLine("------------------------------------------");
             Console.Write(" Select option > ");
 
             try

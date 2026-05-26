@@ -17,7 +17,7 @@ public class TicTacToeGame : Game
         Mode = mode;
         Players = players;
         Boards.Add(new Board(size, size));
-        WinStrategy = new LineWinStrategy(size == 3 ? 3 : Math.Min(size, 5));
+        WinStrategy = new LineWinStrategy(size);
         Placement = new StandardPlacement();
     }
 

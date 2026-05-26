@@ -6,6 +6,7 @@ namespace BoardGames.SaveLoadManager;
 
 public class SaveLoadManager
 {
+    public const string SaveDir = "_FileSaves";
     private readonly Dictionary<string, ISaveFormat> _formats = new(StringComparer.OrdinalIgnoreCase); //Map from file extension to save format implementation.
     public SaveLoadManager()
     {

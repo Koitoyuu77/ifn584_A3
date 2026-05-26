@@ -53,22 +53,26 @@ public class NumericalTicTacToeGame : Game
             return null; // Return null to indicate wrong format so standard handler can show format hint
         }
 
+        // 1. Validate that all three coordinate and value fields are valid integers
         if (!int.TryParse(parts[0], out int visualRow) || !int.TryParse(parts[1], out int col) || !int.TryParse(parts[2], out int n))
         {
             throw new ArgumentException("Row, column, and number must all be integers.");
         }
 
+        // 2. Validate row and column boundaries
         if (visualRow < 0 || visualRow >= BoardSize || col < 0 || col >= BoardSize)
         {
             throw new ArgumentException($"Row and column must be between 0 and {BoardSize - 1}.");
         }
 
+        // 3. Validate number range bounds [1 to N^2]
         int maxNumber = BoardSize * BoardSize;
         if (n < 1 || n > maxNumber)
         {
             throw new ArgumentException($"Number {n} is not in range. It must be between 1 and {maxNumber}.");
         }
 
+        // 4. Validate player number parity (Player 1 = odd, Player 2 = even)
         bool isOdd = n % 2 == 1;
         bool wantOdd = player.Id == 1; // Player 1 plays odd, Player 2 plays even
         if (isOdd != wantOdd)
@@ -76,6 +80,7 @@ public class NumericalTicTacToeGame : Game
             throw new ArgumentException($"Player {player.Name} must use {(wantOdd ? "odd" : "even")} numbers.");
         }
 
+        // 5. Validate that the number has not been previously played on the board
         var usedNumbers = Boards[0].Cells()
             .Where(c => !c.IsEmpty && int.TryParse(c.Piece!.Symbol, out _))
             .Select(c => int.Parse(c.Piece!.Symbol))

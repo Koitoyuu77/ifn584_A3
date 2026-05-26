@@ -16,9 +16,9 @@ public class ConsoleUI
     {
         SafeClear();
 
-        Console.WriteLine("========================================");
+        Console.WriteLine("============================================");
         Console.WriteLine($" {Pretty(game.Type)} ({Pretty(game.Mode)})");
-        Console.WriteLine("========================================");
+        Console.WriteLine("============================================");
         Console.WriteLine();
 
         RenderBoards(game);
@@ -154,7 +154,7 @@ public class ConsoleUI
     public void ShowHelp(Game game)
     {
         Console.WriteLine();
-        Console.WriteLine("=== Help ===");
+        Console.WriteLine("=== HELP ===");
         Console.WriteLine($"  Move format for {Pretty(game.Type)}: {game.MoveFormatHint}");
         Console.WriteLine("  Available commands:");
         Console.WriteLine("    undo            : undo the last move");
@@ -176,12 +176,14 @@ public class ConsoleUI
     public void ShowResult(Game game)
     {
         Console.WriteLine();
-        Console.WriteLine("=== Game over ===");
-        if (game.IsDraw) Console.WriteLine(" [!] Result: DRAW");
+        Console.WriteLine("=== GAMEOVER ===");
+        if (game.IsDraw) Console.WriteLine(" Result: DRAW");
         else if (game.Winner is not null)
-            Console.WriteLine($" [!] Winner: {game.Winner.Name} (Player {game.Winner.Id})");
-        else Console.WriteLine(" [!] Result: ended.");
+            Console.WriteLine($"\n  [!] Winner: {game.Winner.Name} (Player {game.Winner.Id}) [!]");
+        else Console.WriteLine("  Result: ENDED");
         Console.WriteLine();
+        Console.Write("  Press Enter to continue...");
+        try { Console.ReadLine(); } catch (System.IO.IOException) { }
     }
 
     private static void SafeClear()

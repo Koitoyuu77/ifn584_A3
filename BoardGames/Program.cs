@@ -37,20 +37,37 @@ public class Program
         }
     }
 
+    private static void ClearScreen()
+    {
+        try { Console.Clear(); }
+        catch (IOException)
+        {
+            for (int i = 0; i < 50; i++) Console.WriteLine();
+        }
+    }
+
     private static Game AskStartupAction(SaveLoadManager.SaveLoadManager saveLoadManager)
     {
+        string? error = null;
         while (true)
         {
+            ClearScreen();
+            Console.WriteLine("==============================");
+            Console.WriteLine(" IFN584 Board Games Framework ");
+            Console.WriteLine("==============================");
+            Console.WriteLine(" 1. New Game");
+            Console.WriteLine(" 2. Load Game");
+            Console.WriteLine(" 3. Exit");
+            if (!string.IsNullOrEmpty(error))
+            {
+                Console.WriteLine();
+                Console.WriteLine($"  {error}");
+            }
+            Console.WriteLine("------------------------------");
+            Console.Write(" Select option > ");
+
             try
             {
-                Console.WriteLine("==============================");
-                Console.WriteLine(" IFN584 Board Games Framework ");
-                Console.WriteLine("==============================");
-                Console.WriteLine(" 1. New Game");
-                Console.WriteLine(" 2. Load Game");
-                Console.WriteLine(" 3. Exit");
-                Console.Write(" > ");
-
                 string choice = ReadRequiredInput();
 
                 switch (choice)
@@ -63,31 +80,37 @@ public class Program
                         Environment.Exit(0);
                         return null;
                     default:
-                        throw new ArgumentException("[!] Invalid option. Please enter 1 for New Game or 2 for Load Game");
+                        throw new ArgumentException("[!] Invalid option. Please enter 1, 2, or 3.");
                 }
             }
             catch (ArgumentException ex)
             {
-                Console.WriteLine(ex.Message);
-                Console.WriteLine();
+                error = ex.Message;
             }
         }
     }
 
     private static bool AskReturnToMainMenu()
     {
+        string? error = null;
         while (true)
         {
-            try
+            ClearScreen();
+            Console.WriteLine("=================================");
+            Console.WriteLine(" What would you like to do next?");
+            Console.WriteLine("=================================");
+            Console.WriteLine(" 1. Return to Main Menu");
+            Console.WriteLine(" 2. Exit");
+            if (!string.IsNullOrEmpty(error))
             {
                 Console.WriteLine();
-                Console.WriteLine("---------------------------------");
-                Console.WriteLine(" What would you like to do next?");
-                Console.WriteLine("");
-                Console.WriteLine(" 1. Return to Main Menu");
-                Console.WriteLine(" 2. Exit");
-                Console.Write(" > ");
+                Console.WriteLine($"  {error}");
+            }
+            Console.WriteLine("---------------------------------");
+            Console.Write(" Select option > ");
 
+            try
+            {
                 string choice = ReadRequiredInput();
 
                 switch (choice)
@@ -97,12 +120,12 @@ public class Program
                     case "2":
                         return false;
                     default:
-                        throw new ArgumentException("Invalid option. Please enter 1 to return to the main menu or 2 to exit.");
+                        throw new ArgumentException("[!] Invalid option. Please enter 1 or 2.");
                 }
             }
             catch (ArgumentException ex)
             {
-                Console.WriteLine(ex.Message);
+                error = ex.Message;
             }
         }
     }
@@ -136,35 +159,44 @@ public class Program
         if (gameType is GameType.TicTacToe or GameType.NumericalTicTacToe or GameType.Gomoku)
         {
             int defaultSize = gameType == GameType.Gomoku ? 15 : 3;
-            Console.WriteLine("---------------------------------");
+            string? error = null;
 
             while (true)
             {
-                Console.Write($"Board size (default {defaultSize}): ");
+                ClearScreen();
+                Console.WriteLine("=================================");
+                Console.WriteLine(" Select Board Size");
+                Console.WriteLine("=================================");
+                Console.WriteLine($" Game: {gameType}");
+                Console.WriteLine($" Default Size: {defaultSize}");
+                if (!string.IsNullOrEmpty(error))
+                {
+                    Console.WriteLine();
+                    Console.WriteLine($"  {error}");
+                }
+                Console.WriteLine("---------------------------------");
+                Console.Write($" Enter Board Size (or press Enter for default) > ");
                 string? sizeIn = Console.ReadLine();
 
-                // If user just presses Enter, apply the game default
                 if (string.IsNullOrWhiteSpace(sizeIn))
                 {
                     boardSize = defaultSize;
                     break;
                 }
 
-                // Validate that it's a valid integer and meets the structural minimum
                 if (!int.TryParse(sizeIn, out boardSize) || boardSize < 3)
                 {
-                    Console.WriteLine("[!] Invalid input. Size must be a valid number and at least 3");
+                    error = "[!] Invalid input. Size must be a valid number and at least 3.";
                     continue;
                 }
 
-                // Enforce specific rule for Gomoku
                 if (gameType == GameType.Gomoku && boardSize < 5)
                 {
-                    Console.WriteLine("[!] Gomoku requires a board size of at least 5");
+                    error = "[!] Gomoku requires a board size of at least 5.";
                     continue;
                 }
 
-                break; // Input is valid, break out of the size selection loop
+                break;
             }
         } 
 
@@ -172,24 +204,29 @@ public class Program
         return GameFactory.CreateGame(gameType, gameMode, boardSize, names);
     }
 
-    private const string SaveDir = "_FileSaves";
+    private const string SaveDir = BoardGames.SaveLoadManager.SaveLoadManager.SaveDir;
 
     private static Game LoadGameFromFile(SaveLoadManager.SaveLoadManager saveLoadManager)
     {
+        string? error = null;
         while (true)
         {
             try
             {
                 if (!Directory.Exists(SaveDir))
                 {
+                    ClearScreen();
+                    Console.WriteLine("=================================");
+                    Console.WriteLine(" No save directory found!");
+                    Console.WriteLine("=================================");
+                    Console.WriteLine(" Starting a new game instead.");
                     Console.WriteLine();
-                    Console.WriteLine("---------------------------------");
-                    Console.WriteLine(" No save directory found. Starting a new game instead");
                     Console.WriteLine(" Press Enter to continue...");
                     Console.ReadLine();
                     return CreateNewGame();
                 }
 
+                // Query the saves folder, filtering for valid formats and sorting by modified time (newest first)
                 var files = Directory.GetFiles(SaveDir)
                     .Where(f => f.EndsWith(".json", StringComparison.OrdinalIgnoreCase) ||
                                 f.EndsWith(".txt", StringComparison.OrdinalIgnoreCase))
@@ -198,18 +235,20 @@ public class Program
 
                 if (files.Count == 0)
                 {
-                    Console.WriteLine();
-                    Console.WriteLine("---------------------------------");
-                    Console.WriteLine(" No save files found in the save directory.");
+                    ClearScreen();
+                    Console.WriteLine("=================================");
+                    Console.WriteLine(" No Save Files Found!");
+                    Console.WriteLine("=================================");
                     Console.WriteLine(" Press Enter to return to Main Menu...");
                     Console.ReadLine();
                     throw new OperationCanceledException("No save files found.");
                 }
 
-                Console.WriteLine();
-                Console.WriteLine("---------------------------------");
+                // Render the selection menu with a 1-based index and write timestamps
+                ClearScreen();
+                Console.WriteLine("=======================================");
                 Console.WriteLine(" Select a Save File to Load:");
-                Console.WriteLine("");
+                Console.WriteLine("=======================================");
                 for (int i = 0; i < files.Count; i++)
                 {
                     var fileInfo = new FileInfo(files[i]);
@@ -217,20 +256,24 @@ public class Program
                     Console.WriteLine($" {i + 1}. {fileInfo.Name}  ({lastWrite})");
                 }
                 Console.WriteLine(" 0. Back to Main Menu");
+                if (!string.IsNullOrEmpty(error))
+                {
+                    Console.WriteLine();
+                    Console.WriteLine($"  {error}");
+                }
                 Console.WriteLine("---------------------------------------");
-                Console.Write(" > ");
+                Console.Write(" Enter choice > ");
 
                 string choice = ReadRequiredInput();
                 if (choice == "0")
                 {
-                    throw new OperationCanceledException("[!] Loading cancelled by user");
+                    throw new OperationCanceledException("Loading cancelled by user.");
                 }
 
+                // Parse 1-based index selection and fetch the corresponding file path
                 if (!int.TryParse(choice, out int index) || index < 1 || index > files.Count)
                 {
-                    Console.WriteLine($"[!] Invalid choice. Please enter a number between 1 and {files.Count}, or 0.");
-                    Console.WriteLine("Press Enter to try again...");
-                    Console.ReadLine();
+                    error = $"[!] Invalid choice. Please enter a number between 1 and {files.Count}, or 0.";
                     continue;
                 }
 
@@ -242,9 +285,12 @@ public class Program
                 // Rebuild the Game object from the save data.
                 Game game = RestoreGameFromSave(saveState);
 
+                ClearScreen();
+                Console.WriteLine("=======================================");
+                Console.WriteLine(" Game Loaded Successfully!");
+                Console.WriteLine("=======================================");
                 Console.WriteLine();
-                Console.WriteLine("[!] Game loaded successfully");
-                Console.WriteLine("Press Enter to start playing...");
+                Console.WriteLine(" Press Enter to start playing...");
                 Console.ReadLine();
 
                 return game;
@@ -255,16 +301,22 @@ public class Program
             }
             catch (Exception ex)
             {
+                ClearScreen();
+                Console.WriteLine("=======================================");
+                Console.WriteLine(" Load Failed!");
+                Console.WriteLine("=======================================");
+                Console.WriteLine($" Error: {ex.Message}");
                 Console.WriteLine();
-                Console.WriteLine($"[!] Load failed: {ex.Message}");
-                Console.WriteLine("Try again? (y/n)");
+                Console.WriteLine(" Try again? y/n");
+                Console.Write(" Choice > ");
                 string? retry = Console.ReadLine();
 
                 if (!string.Equals(retry, "y", StringComparison.OrdinalIgnoreCase))
                 {
-                    Console.WriteLine("Starting a new game instead...");
+                    Console.WriteLine(" Starting a new game instead.");
                     return CreateNewGame();
                 }
+                error = null;
             }
         }
     }
@@ -333,17 +385,25 @@ public class Program
 
     private static GameType AskGameType()
     {
+        string? error = null;
         while (true)
         {
-            Console.WriteLine();
-            Console.WriteLine("---------------------------------");
+            ClearScreen();
+            Console.WriteLine("=================================");
             Console.WriteLine(" Select a Game:");
+            Console.WriteLine("=================================");
             Console.WriteLine(" 1. Tic-Tac-Toe");
             Console.WriteLine(" 2. Numerical Tic-Tac-Toe");
             Console.WriteLine(" 3. Notakto");
             Console.WriteLine(" 4. Gomoku");
             Console.WriteLine(" 5. Connect Four");
-            Console.Write(" > ");
+            if (!string.IsNullOrEmpty(error))
+            {
+                Console.WriteLine();
+                Console.WriteLine($"  {error}");
+            }
+            Console.WriteLine("---------------------------------");
+            Console.Write(" Select option > ");
 
             try
             {
@@ -362,26 +422,34 @@ public class Program
                     case "5":
                         return GameType.ConnectFour;
                     default:
-                        throw new ArgumentException("[!] Invalid game selection. Please enter a number from 1 to 5");
+                        throw new ArgumentException("[!] Invalid game selection. Please enter a number from 1 to 5.");
                 }
             }
             catch (ArgumentException ex)
             {
-                Console.WriteLine(ex.Message);
+                error = ex.Message;
             }
         }
     }
 
     private static GameMode AskGameMode()
     {
+        string? error = null;
         while (true)
         {
-            Console.WriteLine();
-            Console.WriteLine("---------------------------------");
-            Console.WriteLine(" Select mode:");
+            ClearScreen();
+            Console.WriteLine("=================================");
+            Console.WriteLine(" Select Mode:");
+            Console.WriteLine("=================================");
             Console.WriteLine(" 1. Human vs Computer");
             Console.WriteLine(" 2. Human vs Human");
-            Console.Write(" > ");
+            if (!string.IsNullOrEmpty(error))
+            {
+                Console.WriteLine();
+                Console.WriteLine($"  {error}");
+            }
+            Console.WriteLine("---------------------------------");
+            Console.Write(" Select option > ");
 
             try
             {
@@ -394,12 +462,12 @@ public class Program
                     case "2":
                         return GameMode.HumanVsHuman;
                     default:
-                        throw new ArgumentException("[!] Invalid mode selection. Please enter 1 or 2");
+                        throw new ArgumentException("[!] Invalid mode selection. Please enter 1 or 2.");
                 }
             }
             catch (ArgumentException ex)
             {
-                Console.WriteLine(ex.Message);
+                error = ex.Message;
             }
         }
     }

@@ -7,17 +7,21 @@ namespace BoardGames.Games;
 
 public class ConnectFourGame : Game
 {
+    public const int DefaultRows = 6;
+    public const int DefaultCols = 7;
+    public const int DefaultWinLength = 4;
+
     public override GameType Type => GameType.ConnectFour;
 
     public override string MoveFormatHint => "col (e.g. 2)";
 
     public ConnectFourGame(GameMode mode, List<Player> players)
     {
-        BoardSize = 7;
+        BoardSize = DefaultCols;
         Mode = mode;
         Players = players;
-        Boards.Add(new Board(6, 7));
-        WinStrategy = new LineWinStrategy(4);
+        Boards.Add(new Board(DefaultRows, DefaultCols));
+        WinStrategy = new LineWinStrategy(DefaultWinLength);
         Placement = new GravityPlacement();
     }
 
@@ -39,7 +43,7 @@ public class ConnectFourGame : Game
             return null;
         }
 
-        if (col < 0 || col >= Boards[0].Cols)
+        if (col < 0 || col >= DefaultCols)
         {
             return null;
         }
@@ -63,13 +67,13 @@ public class ConnectFourGame : Game
 
         Board board = Boards[move.BoardIndex];
 
-        if (move.Col < 0 || move.Col >= board.Cols)
+        if (move.Col < 0 || move.Col >= DefaultCols)
         {
             return false;
         }
 
         // Valid if the selected column still has at least one empty cell.
-        for (int row = 0; row < board.Rows; row++)
+        for (int row = 0; row < DefaultRows; row++)
         {
             if (board.GetCell(row, move.Col).IsEmpty)
             {
@@ -81,17 +85,17 @@ public class ConnectFourGame : Game
     }
 
     public override IEnumerable<Move> GetValidMoves(Player player)
-{
-    Piece piece = GetPiecesAvailable(player).First();
-
-    for (int col = 0; col < Boards[0].Cols; col++)
     {
-        Move move = new Move(0, col, 0, piece, player.Id);
+        Piece piece = GetPiecesAvailable(player).First();
 
-        if (IsValidMove(move))
+        for (int col = 0; col < DefaultCols; col++)
         {
-            yield return move;
+            Move move = new Move(0, col, 0, piece, player.Id);
+
+            if (IsValidMove(move))
+            {
+                yield return move;
+            }
         }
     }
-}
 }

@@ -7,7 +7,7 @@ namespace BoardGames.UI;
 
 public class GameController(ConsoleUI ui, InputHandler inputHandler, SaveLoadManager.SaveLoadManager saveLoadManager)
 {
-    private const string SaveDir = "_FileSaves";
+    private const string SaveDir = BoardGames.SaveLoadManager.SaveLoadManager.SaveDir;
     private readonly ConsoleUI _ui = ui;
     private readonly InputHandler _inputHandler = inputHandler;
     private readonly SaveLoadManager.SaveLoadManager _saveLoadManager = saveLoadManager;

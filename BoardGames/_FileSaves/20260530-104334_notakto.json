@@ -1,0 +1,92 @@
+{
+  "gameType": "Notakto",
+  "gameMode": "HumanVsComputer",
+  "boardSize": 3,
+  "moveLog": [
+    {
+      "row": 2,
+      "col": 1,
+      "boardIndex": 0,
+      "piece": {
+        "symbol": "X",
+        "ownerId": 1
+      },
+      "playerId": 1
+    },
+    {
+      "row": 2,
+      "col": 2,
+      "boardIndex": 1,
+      "piece": {
+        "symbol": "X",
+        "ownerId": 2
+      },
+      "playerId": 2
+    },
+    {
+      "row": 2,
+      "col": 2,
+      "boardIndex": 0,
+      "piece": {
+        "symbol": "X",
+        "ownerId": 1
+      },
+      "playerId": 1
+    },
+    {
+      "row": 1,
+      "col": 2,
+      "boardIndex": 1,
+      "piece": {
+        "symbol": "X",
+        "ownerId": 2
+      },
+      "playerId": 2
+    },
+    {
+      "row": 2,
+      "col": 0,
+      "boardIndex": 0,
+      "piece": {
+        "symbol": "X",
+        "ownerId": 1
+      },
+      "playerId": 1
+    },
+    {
+      "row": 2,
+      "col": 2,
+      "boardIndex": 2,
+      "piece": {
+        "symbol": "X",
+        "ownerId": 2
+      },
+      "playerId": 2
+    },
+    {
+      "row": 0,
+      "col": 2,
+      "boardIndex": 1,
+      "piece": {
+        "symbol": "X",
+        "ownerId": 1
+      },
+      "playerId": 1
+    },
+    {
+      "row": 2,
+      "col": 0,
+      "boardIndex": 2,
+      "piece": {
+        "symbol": "X",
+        "ownerId": 2
+      },
+      "playerId": 2
+    }
+  ],
+  "playerNames": [
+    "Jimmy",
+    "Computer"
+  ],
+  "cursor": 8
+}

@@ -1,10 +1,30 @@
 {
   "gameType": "ConnectFour",
-  "gameMode": "HumanVsComputer",
+  "gameMode": "HumanVsHuman",
   "boardSize": 7,
   "moveLog": [
     {
       "row": 0,
+      "col": 1,
+      "boardIndex": 0,
+      "piece": {
+        "symbol": "X",
+        "ownerId": 1
+      },
+      "playerId": 1
+    },
+    {
+      "row": 0,
+      "col": 1,
+      "boardIndex": 0,
+      "piece": {
+        "symbol": "O",
+        "ownerId": 2
+      },
+      "playerId": 2
+    },
+    {
+      "row": 0,
       "col": 0,
       "boardIndex": 0,
       "piece": {
@@ -25,107 +45,27 @@
     },
     {
       "row": 0,
-      "col": 1,
+      "col": 0,
       "boardIndex": 0,
       "piece": {
         "symbol": "X",
         "ownerId": 1
       },
       "playerId": 1
+    },
+    {
+      "row": 0,
+      "col": 3,
+      "boardIndex": 0,
+      "piece": {
+        "symbol": "O",
+        "ownerId": 2
+      },
+      "playerId": 2
     },
     {
       "row": 0,
       "col": 0,
-      "boardIndex": 0,
-      "piece": {
-        "symbol": "O",
-        "ownerId": 2
-      },
-      "playerId": 2
-    },
-    {
-      "row": 0,
-      "col": 3,
-      "boardIndex": 0,
-      "piece": {
-        "symbol": "X",
-        "ownerId": 1
-      },
-      "playerId": 1
-    },
-    {
-      "row": 0,
-      "col": 1,
-      "boardIndex": 0,
-      "piece": {
-        "symbol": "O",
-        "ownerId": 2
-      },
-      "playerId": 2
-    },
-    {
-      "row": 0,
-      "col": 2,
-      "boardIndex": 0,
-      "piece": {
-        "symbol": "X",
-        "ownerId": 1
-      },
-      "playerId": 1
-    },
-    {
-      "row": 0,
-      "col": 1,
-      "boardIndex": 0,
-      "piece": {
-        "symbol": "O",
-        "ownerId": 2
-      },
-      "playerId": 2
-    },
-    {
-      "row": 0,
-      "col": 3,
-      "boardIndex": 0,
-      "piece": {
-        "symbol": "X",
-        "ownerId": 1
-      },
-      "playerId": 1
-    },
-    {
-      "row": 0,
-      "col": 2,
-      "boardIndex": 0,
-      "piece": {
-        "symbol": "O",
-        "ownerId": 2
-      },
-      "playerId": 2
-    },
-    {
-      "row": 0,
-      "col": 1,
-      "boardIndex": 0,
-      "piece": {
-        "symbol": "X",
-        "ownerId": 1
-      },
-      "playerId": 1
-    },
-    {
-      "row": 0,
-      "col": 6,
-      "boardIndex": 0,
-      "piece": {
-        "symbol": "O",
-        "ownerId": 2
-      },
-      "playerId": 2
-    },
-    {
-      "row": 0,
-      "col": 4,
       "boardIndex": 0,
       "piece": {
         "symbol": "X",
@@ -146,7 +86,7 @@
   ],
   "playerNames": [
     "Jimmy",
-    "Computer"
+    "Jeremy"
   ],
-  "cursor": 14
+  "cursor": 8
 }
